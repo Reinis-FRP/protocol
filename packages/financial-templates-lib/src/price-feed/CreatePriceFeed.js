@@ -8,6 +8,7 @@ const { multicallAddressMap } = require("../helpers/multicall");
 
 // Price feed interfaces (sorted alphabetically)
 const { BalancerPriceFeed } = require("./BalancerPriceFeed");
+const { BancorPriceFeed } = require("./BancorPriceFeed");
 const { BasketSpreadPriceFeed } = require("./BasketSpreadPriceFeed");
 const { CoinGeckoPriceFeed } = require("./CoinGeckoPriceFeed");
 const { CoinMarketCapPriceFeed } = require("./CoinMarketCapPriceFeed");
@@ -31,6 +32,9 @@ const { VaultPriceFeed, HarvestVaultPriceFeed } = require("./VaultPriceFeed");
 // Global cache for block (promises) used by uniswap price feeds.
 const uniswapBlockCache = {};
 
+// Global cache for block (promises) used by bancor price feeds.
+const bancorBlockCache = {};
+
 async function createPriceFeed(logger, web3, networker, getTime, config) {
   const UniswapV2 = getTruffleContract("UniswapV2", web3);
   const UniswapV3 = getTruffleContract("UniswapV3", web3);
@@ -39,6 +43,7 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
   const VaultInterface = getTruffleContract("VaultInterface", web3);
   const HarvestVaultInterface = getTruffleContract("HarvestVaultInterface", web3);
   const Perpetual = getTruffleContract("Perpetual", web3);
+  const Bancor = getTruffleContract("Bancor", web3);
 
   if (config.type === "cryptowatch") {
     const requiredFields = ["exchange", "pair", "lookback", "minTimeBetweenUpdates"];
@@ -523,6 +528,34 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
       multicallAddress: multicallAddress,
       blockFinder: getSharedBlockFinder(web3),
     });
+  } else if (config.type === "bancor") {
+    const requiredFields = ["bancorAddress", "twapLength", "lookback"];
+
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({
+      at: "createPriceFeed",
+      message: "Creating BancorPriceFeed",
+      config,
+    });
+
+    const bancorAbi = Bancor.abi;
+
+    return new BancorPriceFeed(
+      logger,
+      bancorAbi,
+      ERC20.abi,
+      web3,
+      config.bancorAddress,
+      config.twapLength,
+      config.lookback,
+      getTime,
+      config.invertPrice, // Not checked in config because this parameter just defaults to false.
+      config.priceFeedDecimals, // This defaults to 18 unless supplied by user
+      bancorBlockCache
+    );
   }
 
   logger.error({
