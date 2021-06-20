@@ -43,7 +43,8 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
   const VaultInterface = getTruffleContract("VaultInterface", web3);
   const HarvestVaultInterface = getTruffleContract("HarvestVaultInterface", web3);
   const Perpetual = getTruffleContract("Perpetual", web3);
-  const Bancor = getTruffleContract("Bancor", web3);
+  const BancorDSToken = getTruffleContract("BancorDSToken", web3);
+  const BancorConverter = getTruffleContract("BancorConverter", web3);
 
   if (config.type === "cryptowatch") {
     const requiredFields = ["exchange", "pair", "lookback", "minTimeBetweenUpdates"];
@@ -541,11 +542,13 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
       config,
     });
 
-    const bancorAbi = Bancor.abi;
+    const bancorDSTokenAbi = BancorDSToken.abi;
+    const bancorConverterAbi = BancorConverter.abi;
 
     return new BancorPriceFeed(
       logger,
-      bancorAbi,
+      bancorDSTokenAbi,
+      bancorConverterAbi,
       ERC20.abi,
       web3,
       config.bancorAddress,

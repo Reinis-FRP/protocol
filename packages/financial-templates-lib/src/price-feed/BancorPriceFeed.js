@@ -7,7 +7,8 @@ class BancorPriceFeed extends PriceFeedInterface {
   /**
    * @notice Constructs new bancor TWAP price feed object.
    * @param {Object} logger Winston module used to send logs.
-   * @param {Object} bancorAbi Bancor Truffle ABI object to create a contract instance to query prices.
+   * @param {Object} bancorDSTokenAbi Bancor Truffle ABI object to create a contract instance to get Converter address.
+   * @param {Object} bancorConverterAbi Bancor Truffle ABI object to create a contract instance to query prices.
    * @param {Object} erc20Abi ERC20 Token Truffle ABI object to create a contract instance to query decimals.
    * @param {Object} web3 Provider from Truffle instance to connect to Ethereum network.
    * @param {String} bancorAddress Ethereum address of the Bancor market the price feed is monitoring.
@@ -20,7 +21,8 @@ class BancorPriceFeed extends PriceFeedInterface {
    */
   constructor(
     logger,
-    bancorAbi,
+    bancorDSTokenAbi,
+    bancorConverterAbi,
     erc20Abi,
     web3,
     bancorAddress,
@@ -35,8 +37,9 @@ class BancorPriceFeed extends PriceFeedInterface {
     this.logger = logger;
     this.web3 = web3;
 
-    // Create Bancor contract
-    this.bancor = new web3.eth.Contract(bancorAbi, bancorAddress);
+    // Create Bancor pool token contract
+    this.bancorDSToken = new web3.eth.Contract(bancorDSTokenAbi, bancorAddress);
+    this.bancorConverterAbi = bancorConverterAbi;
     this.erc20Abi = erc20Abi;
     this.priceFeedDecimals = priceFeedDecimals;
 
@@ -101,23 +104,37 @@ class BancorPriceFeed extends PriceFeedInterface {
   }
 
   async update() {
-    // Read token0 and token1 precision and weights from Bancor contract if not already cached:
-    if (!this.token0Precision || !this.token1Precision || !this.convertToPriceFeedDecimals) {
-      const [token0Address, token1Address] = await this.bancor.methods.reserveTokens().call();
+    // Read converter address, token0 and token1 precision and weights from Bancor contracts if not already cached:
+    if (
+      !this.converterAddress ||
+      !this.token0Weight ||
+      this.token1Weight ||
+      !this.token0Precision ||
+      !this.token1Precision ||
+      !this.convertToPriceFeedDecimals
+    ) {
+      const converterAddress = await this.bancorDSToken.methods.owner().call();
+      this.converterAddress = converterAddress;
+      this.bancorConverter = new this.web3.eth.Contract(this.bancorConverterAbi, converterAddress);
+      const [token0Address, token1Address] = await this.bancorConverter.methods.reserveTokens().call();
       this.token0Address = token0Address;
       this.token1Address = token1Address;
       const [token0Weight, token1Weight] = await Promise.all([
-        this.bancor.methods.reserveWeight(token0Address).call(),
-        this.bancor.methods.reserveWeight(token1Address).call(),
+        this.bancorConverter.methods.reserveWeight(token0Address).call(),
+        this.bancorConverter.methods.reserveWeight(token1Address).call(),
       ]);
       this.token0Weight = this.toBN(token0Weight);
       this.token1Weight = this.toBN(token1Weight);
       this.token0 = new this.web3.eth.Contract(this.erc20Abi, token0Address);
       this.token1 = new this.web3.eth.Contract(this.erc20Abi, token1Address);
-      const token0Precision = token0Address == '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' ?
-        18 : await this.token0.methods.decimals().call();
-      const token1Precision = token1Address == '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' ?
-        18 : await this.token1.methods.decimals().call();
+      const token0Precision =
+        token0Address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          ? 18
+          : await this.token0.methods.decimals().call();
+      const token1Precision =
+        token1Address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          ? 18
+          : await this.token1.methods.decimals().call();
       this.token0Precision = token0Precision;
       this.token1Precision = token1Precision;
       // `_getPriceFromSyncEvent()` returns prices in the same precision as `token1` unless price is inverted.
@@ -149,26 +166,28 @@ class BancorPriceFeed extends PriceFeedInterface {
       // By taking larger powers of 2, this doubles the lookback each time.
       fromBlock = Math.max(0, latestBlockNumber - lookbackBlocks * 2 ** i);
 
-      const newEvents = await this._getSortedEvents(fromBlock, toBlock, this.token0Address, this.token1Address).then((newEvents) => {
-        // Grabs the timestamps for all blocks, but avoids re-querying by .then-ing any cached blocks.
-        return Promise.all(
-          newEvents.map((event) => {
-            // If there is nothing in the cache for this block number, add a new promise that will resolve to the block.
-            if (!this.blocks[event.blockNumber]) {
-              this.blocks[event.blockNumber] = this.web3.eth
-                .getBlock(event.blockNumber)
-                .then((block) => ({ timestamp: block.timestamp, number: block.number }));
-            }
+      const newEvents = await this._getSortedEvents(fromBlock, toBlock, this.token0Address, this.token1Address).then(
+        (newEvents) => {
+          // Grabs the timestamps for all blocks, but avoids re-querying by .then-ing any cached blocks.
+          return Promise.all(
+            newEvents.map((event) => {
+              // If there is nothing in the cache for this block number, add a new promise that will resolve to the block.
+              if (!this.blocks[event.blockNumber]) {
+                this.blocks[event.blockNumber] = this.web3.eth
+                  .getBlock(event.blockNumber)
+                  .then((block) => ({ timestamp: block.timestamp, number: block.number }));
+              }
 
-            // Add a .then to the promise that sets the timestamp (and price) for this event after the promise resolves.
-            return this.blocks[event.blockNumber].then((block) => {
-              event.timestamp = block.timestamp;
-              event.price = this._getPriceFromEvent(event);
-              return event;
-            });
-          })
-        );
-      });
+              // Add a .then to the promise that sets the timestamp (and price) for this event after the promise resolves.
+              return this.blocks[event.blockNumber].then((block) => {
+                event.timestamp = block.timestamp;
+                event.price = this._getPriceFromEvent(event);
+                return event;
+              });
+            })
+          );
+        }
+      );
 
       // Adds newly queried events to the array.
       events = [...newEvents, ...events];
@@ -202,10 +221,10 @@ class BancorPriceFeed extends PriceFeedInterface {
   }
 
   async _getSortedEvents(fromBlock, toBlock, token0Address, token1Address) {
-    const events = await this.bancor.getPastEvents("TokenRateUpdate", {
-      filter: {_token1: [token0Address,token1Address], _token2: [token0Address,token1Address]},
+    const events = await this.bancorConverter.getPastEvents("TokenRateUpdate", {
+      filter: { _token1: [token0Address, token1Address], _token2: [token0Address, token1Address] },
       fromBlock: fromBlock,
-      toBlock: toBlock
+      toBlock: toBlock,
     });
     // Primary sort on block number. Secondary sort on transactionIndex. Tertiary sort on logIndex.
     events.sort((a, b) => {
@@ -229,10 +248,14 @@ class BancorPriceFeed extends PriceFeedInterface {
       parseFixed("1", this.invertPrice ? this.token1Precision : this.token0Precision).toString()
     );
 
-    const reserve0 = event.returnValues._token1 == this.token0Address ?
-      this.toBN(event.returnValues._rateD) : this.toBN(event.returnValues._rateN);
-    const reserve1 = event.returnValues._token1 == this.token0Address ?
-      this.toBN(event.returnValues._rateN) : this.toBN(event.returnValues._rateD);
+    const reserve0 =
+      event.returnValues._token1 == this.token0Address
+        ? this.toBN(event.returnValues._rateD)
+        : this.toBN(event.returnValues._rateN);
+    const reserve1 =
+      event.returnValues._token1 == this.token0Address
+        ? this.toBN(event.returnValues._rateN)
+        : this.toBN(event.returnValues._rateD);
 
     if (reserve1.isZero() || reserve0.isZero()) return null;
 
@@ -242,9 +265,7 @@ class BancorPriceFeed extends PriceFeedInterface {
     } else {
       return reserve1.mul(fixedPointAdjustment).div(this.token1Weight).div(reserve0).mul(this.token0Weight);
     }
-
- }
-
+  }
 }
 
 module.exports = {
