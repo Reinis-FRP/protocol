@@ -108,7 +108,7 @@ class BancorPriceFeed extends PriceFeedInterface {
     if (
       !this.converterAddress ||
       !this.token0Weight ||
-      this.token1Weight ||
+      !this.token1Weight ||
       !this.token0Precision ||
       !this.token1Precision ||
       !this.convertToPriceFeedDecimals
