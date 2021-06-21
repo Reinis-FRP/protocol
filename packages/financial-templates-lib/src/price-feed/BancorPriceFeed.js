@@ -166,28 +166,32 @@ class BancorPriceFeed extends PriceFeedInterface {
       // By taking larger powers of 2, this doubles the lookback each time.
       fromBlock = Math.max(0, latestBlockNumber - lookbackBlocks * 2 ** i);
 
-      const newEvents = await this._getSortedEvents(fromBlock, toBlock, this.token0Address, this.token1Address).then(
-        (newEvents) => {
-          // Grabs the timestamps for all blocks, but avoids re-querying by .then-ing any cached blocks.
-          return Promise.all(
-            newEvents.map((event) => {
-              // If there is nothing in the cache for this block number, add a new promise that will resolve to the block.
-              if (!this.blocks[event.blockNumber]) {
-                this.blocks[event.blockNumber] = this.web3.eth
-                  .getBlock(event.blockNumber)
-                  .then((block) => ({ timestamp: block.timestamp, number: block.number }));
-              }
+      const newEvents = await this._getSortedEvents(
+        fromBlock,
+        toBlock,
+        this.bancorAddress,
+        this.token0Address,
+        this.token1Address
+      ).then((newEvents) => {
+        // Grabs the timestamps for all blocks, but avoids re-querying by .then-ing any cached blocks.
+        return Promise.all(
+          newEvents.map((event) => {
+            // If there is nothing in the cache for this block number, add a new promise that will resolve to the block.
+            if (!this.blocks[event.blockNumber]) {
+              this.blocks[event.blockNumber] = this.web3.eth
+                .getBlock(event.blockNumber)
+                .then((block) => ({ timestamp: block.timestamp, number: block.number }));
+            }
 
-              // Add a .then to the promise that sets the timestamp (and price) for this event after the promise resolves.
-              return this.blocks[event.blockNumber].then((block) => {
-                event.timestamp = block.timestamp;
-                event.price = this._getPriceFromEvent(event);
-                return event;
-              });
-            })
-          );
-        }
-      );
+            // Add a .then to the promise that sets the timestamp (and price) for this event after the promise resolves.
+            return this.blocks[event.blockNumber].then((block) => {
+              event.timestamp = block.timestamp;
+              event.price = this._getPriceFromEvent(event);
+              return event;
+            });
+          })
+        );
+      });
 
       // Adds newly queried events to the array.
       events = [...newEvents, ...events];
@@ -220,9 +224,9 @@ class BancorPriceFeed extends PriceFeedInterface {
     return computeTWAP(events, startTime, endTime, this.toBN("0"));
   }
 
-  async _getSortedEvents(fromBlock, toBlock, token0Address, token1Address) {
+  async _getSortedEvents(fromBlock, toBlock, bancorAddress, token0Address, token1Address) {
     const events = await this.bancorConverter.getPastEvents("TokenRateUpdate", {
-      filter: { _token1: [token0Address, token1Address], _token2: [token0Address, token1Address] },
+      filter: { _token1: bancorAddress, _token2: [token0Address, token1Address] },
       fromBlock: fromBlock,
       toBlock: toBlock,
     });
@@ -238,8 +242,17 @@ class BancorPriceFeed extends PriceFeedInterface {
 
       return a.logIndex - b.logIndex;
     });
-
-    return events;
+    // Replace pool token with reserve token from previous event
+    for (let i = 0; i < events.length; i++) {
+      if (i % 2 != 0) {
+        events[i].returnValues._token1 = events[i - 1].returnValues._token2;
+        events[i].returnValues._rateD = events[i - 1].returnValues._rateN;
+      }
+    }
+    // Return only every second event in the pair
+    return events.filter(function (_, i) {
+      return i % 2;
+    });
   }
 
   _getPriceFromEvent(event) {
