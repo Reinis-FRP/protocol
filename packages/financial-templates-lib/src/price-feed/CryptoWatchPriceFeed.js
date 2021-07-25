@@ -37,7 +37,7 @@ class CryptoWatchPriceFeed extends PriceFeedInterface {
     minTimeBetweenUpdates,
     invertPrice,
     priceFeedDecimals = 18,
-    ohlcPeriod = 60, // One minute is CryptoWatch's most granular option.
+    ohlcPeriod,
     twapLength = 0, // No TWAP by default.
     historicalTimestampBuffer = 0 // Buffer of 0 means that historical timestamp must fall strictly within a price
     // period's open and close time.
@@ -149,7 +149,7 @@ class CryptoWatchPriceFeed extends PriceFeedInterface {
         To see these prices, make a GET request to:
         https://api.cryptowat.ch/markets/${this.exchange}/${this.pair}/ohlc?after=${
         before?.openTime + this.ohlcPeriod
-      }&before=${after?.closeTime}&periods=60
+      }&before=${after?.closeTime}&periods=${this.ohlcPeriod}
       `);
     }
 
@@ -158,7 +158,7 @@ class CryptoWatchPriceFeed extends PriceFeedInterface {
       console.group(`\n(${this.exchange}:${this.pair}) Historical OHLC @ ${match.closeTime}`);
       console.log(`- ✅ Open Price: ${formatFixed(returnPrice.toString(), this.priceFeedDecimals)}`);
       console.log(
-        `- ⚠️  If you want to manually verify the specific exchange prices, you can make a GET request to: \n- https://api.cryptowat.ch/markets/${this.exchange}/${this.pair}/ohlc?after=${match.closeTime}&before=${match.closeTime}&periods=60`
+        `- ⚠️  If you want to manually verify the specific exchange prices, you can make a GET request to: \n- https://api.cryptowat.ch/markets/${this.exchange}/${this.pair}/ohlc?after=${match.closeTime}&before=${match.closeTime}&periods=${this.ohlcPeriod}`
       );
       console.log(
         '- This will return an OHLC data packet as "result", which contains in order: \n- [CloseTime, OpenPrice, HighPrice, LowPrice, ClosePrice, Volume, QuoteVolume].'
@@ -214,6 +214,10 @@ class CryptoWatchPriceFeed extends PriceFeedInterface {
       currentTime: currentTime,
       lastUpdateTimestamp: this.lastUpdateTime,
     });
+
+    if (this.ohlcPeriod === undefined) {
+      this.ohlcPeriod = await this._getMostGranularOhlcPeriod(currentTime);
+    }
 
     // Round down to the nearest ohlc period so the queries captures the OHLC of the period *before* this earliest
     // timestamp (because the close of that OHLC may be relevant).
@@ -322,6 +326,37 @@ class CryptoWatchPriceFeed extends PriceFeedInterface {
     } else {
       return undefined;
     }
+  }
+
+  async _getMostGranularOhlcPeriod(toTimestamp) {
+    // See https://docs.cryptowat.ch/rest-api/markets/ohlc for how this url is constructed.
+    const ohlcUrl = [
+      `https://api.cryptowat.ch/markets/${this.exchange}/${this.pair}/ohlc`,
+      `?before=${toTimestamp}`,
+      this.apiKey ? `&apikey=${this.apiKey}` : "",
+    ].join("");
+
+    const ohlcResponse = await this.networker.getJson(ohlcUrl);
+
+    if (!ohlcResponse || !ohlcResponse.result) {
+      throw new Error(`🚨Could not parse ohlc result from url ${ohlcUrl}: ${JSON.stringify(ohlcResponse)}`);
+    }
+
+    return Object.keys(ohlcResponse.result)
+      .map((period) => {
+        return parseInt(period);
+      })
+      .sort((a, b) => {
+        return a - b;
+      })
+      .find((period) => {
+        return (
+          ohlcResponse.result[period.toString()].sort((a, b) => {
+            return a[0] - b[0];
+          })[0][0] <
+          Math.floor((toTimestamp - (this.lookback + this.twapLength)) / period) * period
+        );
+      });
   }
 }
 
