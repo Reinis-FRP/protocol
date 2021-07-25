@@ -1,6 +1,6 @@
 const assert = require("assert");
 const { ChainId, Token, Pair, TokenAmount } = require("@uniswap/sdk");
-const { defaultConfigs } = require("./DefaultPriceFeedConfigs");
+const { defaultConfigs } = require("./FRPPriceFeedConfigs");
 const { getTruffleContract } = require("@uma/core");
 const { BlockFinder } = require("./utils");
 const { getPrecisionForIdentifier, PublicNetworks } = require("@uma/common");
@@ -755,6 +755,8 @@ async function createReferencePriceFeedForFinancialContract(
   } else {
     defaultConfig = defaultConfigs[_identifier];
   }
+
+  console.log("%o", { identifier: _identifier, defaultConfig });
 
   logger.debug({
     at: "createReferencePriceFeedForFinancialContract",
