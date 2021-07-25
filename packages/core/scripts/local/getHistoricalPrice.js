@@ -49,13 +49,16 @@ async function getHistoricalPrice(callback) {
     // Function to get the current time.
     const getTime = () => Math.round(new Date().getTime() / 1000);
 
-    // If user specified a timestamp, then use it, otherwise default to the current time.
+    // If user specified a timestamp or block, then use it, otherwise default to the current time.
     let queryTime;
-    if (!argv.time) {
+    if (!argv.time && !argv.block) {
       queryTime = getTime();
       console.log(
         `Optional '--time' flag not specified, defaulting to the current Unix timestamp (in seconds): ${queryTime}`
       );
+    } else if (argv.block) {
+      queryTime = (await web3.eth.getBlock(argv.block)).timestamp;
+      console.log(`Requested block #${argv.block} Unix timestamp (in seconds): ${queryTime}`);
     } else {
       queryTime = argv.time;
     }
