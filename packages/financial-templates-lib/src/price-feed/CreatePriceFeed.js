@@ -27,6 +27,7 @@ const { QuandlPriceFeed } = require("./QuandlPriceFeed");
 const { TraderMadePriceFeed } = require("./TraderMadePriceFeed");
 const { UniswapV2PriceFeed, UniswapV3PriceFeed } = require("./UniswapPriceFeed");
 const { VaultPriceFeed, HarvestVaultPriceFeed } = require("./VaultPriceFeed");
+const { CompoundPriceFeed } = require("./CompoundPriceFeed");
 
 // Global cache for block (promises) used by uniswap price feeds.
 const uniswapBlockCache = {};
@@ -39,6 +40,7 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
   const VaultInterface = getTruffleContract("VaultInterface", web3);
   const HarvestVaultInterface = getTruffleContract("HarvestVaultInterface", web3);
   const Perpetual = getTruffleContract("Perpetual", web3);
+  const CompoundInterface = getTruffleContract("CompoundInterface", web3);
 
   if (config.type === "cryptowatch") {
     const requiredFields = ["exchange", "pair", "lookback", "minTimeBetweenUpdates"];
@@ -432,6 +434,24 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
       getTime,
       perpetualAbi: Perpetual.abi,
       multicallAddress: multicallAddress,
+      blockFinder: getSharedBlockFinder(web3),
+    });
+  } else if (config.type === "compound") {
+    const requiredFields = ["address"];
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({ at: "createPriceFeed", message: "Creating CompoundPriceFeed", config });
+
+    return new CompoundPriceFeed({
+      ...config,
+      logger,
+      web3,
+      getTime,
+      compoundAbi: CompoundInterface.abi,
+      erc20Abi: ERC20.abi,
+      compoundAddress: config.address,
       blockFinder: getSharedBlockFinder(web3),
     });
   }

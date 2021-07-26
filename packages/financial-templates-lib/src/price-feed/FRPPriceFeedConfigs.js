@@ -967,6 +967,7 @@ const defaultConfigs = {
     pair: "usdceur",
   },
   "aUniDAI-EUR": { type: "expression", expression: "DAI\\-EUR" },
+  "cDAI-DAI": { type: "compound", address: "0x5d3a536e4d6dbd6114cc1ead35777bab948e3643" },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
