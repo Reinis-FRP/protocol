@@ -11,6 +11,7 @@ const { BalancerPriceFeed } = require("./BalancerPriceFeed");
 const { BasketSpreadPriceFeed } = require("./BasketSpreadPriceFeed");
 const { CoinGeckoPriceFeed } = require("./CoinGeckoPriceFeed");
 const { CoinMarketCapPriceFeed } = require("./CoinMarketCapPriceFeed");
+const { CompoundPriceFeed } = require("./CompoundPriceFeed");
 const { CryptoWatchPriceFeed } = require("./CryptoWatchPriceFeed");
 const { DefiPulsePriceFeed } = require("./DefiPulsePriceFeed");
 const { DominationFinancePriceFeed } = require("./DominationFinancePriceFeed");
@@ -27,7 +28,6 @@ const { QuandlPriceFeed } = require("./QuandlPriceFeed");
 const { TraderMadePriceFeed } = require("./TraderMadePriceFeed");
 const { UniswapV2PriceFeed, UniswapV3PriceFeed } = require("./UniswapPriceFeed");
 const { VaultPriceFeed, HarvestVaultPriceFeed } = require("./VaultPriceFeed");
-const { CompoundPriceFeed } = require("./CompoundPriceFeed");
 
 // Global cache for block (promises) used by uniswap price feeds.
 const uniswapBlockCache = {};
