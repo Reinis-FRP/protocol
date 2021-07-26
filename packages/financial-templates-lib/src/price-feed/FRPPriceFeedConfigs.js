@@ -951,7 +951,6 @@ const defaultConfigs = {
     ],
   },
   "DAI-EUR": { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "daieur" },
-  "aDAI-EUR": { type: "expression", expression: "DAI\\-EUR" },
   "USDT-EUR": {
     type: "cryptowatch",
     invertPrice: false,
@@ -966,8 +965,14 @@ const defaultConfigs = {
     exchange: "kraken",
     pair: "usdceur",
   },
-  "aUniDAI-EUR": { type: "expression", expression: "DAI\\-EUR" },
   "cDAI-DAI": { type: "compound", address: "0x5d3a536e4d6dbd6114cc1ead35777bab948e3643" },
+  "COMP-EUR": {
+    type: "cryptowatch",
+    invertPrice: false,
+    minTimeBetweenUpdates: 60,
+    exchange: "kraken",
+    pair: "compeur",
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
