@@ -973,6 +973,18 @@ const defaultConfigs = {
     exchange: "kraken",
     pair: "compeur",
   },
+  "[YD-ETH-MAR21]-EUR": {
+    type: "expression",
+    expression: "\\[YD\\-ETH\\-MAR21\\]\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "[YD-ETH-MAR21]-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0x5e065D534d1DAaf9E6222AfA1D09e7Dac6cbD0f7",
+        baseAddress: "0x90f802c7e8fb5d40b0de583e34c065a3bd2020d8",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the

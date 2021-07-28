@@ -8,6 +8,7 @@ const { multicallAddressMap } = require("../helpers/multicall");
 
 // Price feed interfaces (sorted alphabetically)
 const { BalancerPriceFeed } = require("./BalancerPriceFeed");
+const { BalancerSpotPriceFeed } = require("./BalancerSpotPriceFeed");
 const { BasketSpreadPriceFeed } = require("./BasketSpreadPriceFeed");
 const { CoinGeckoPriceFeed } = require("./CoinGeckoPriceFeed");
 const { CoinMarketCapPriceFeed } = require("./CoinMarketCapPriceFeed");
@@ -37,6 +38,7 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
   const UniswapV3 = getTruffleContract("UniswapV3", web3);
   const ERC20 = getTruffleContract("ExpandedERC20", web3);
   const Balancer = getTruffleContract("Balancer", web3);
+  const BalancerSpot = getTruffleContract("BalancerSpot", web3);
   const VaultInterface = getTruffleContract("VaultInterface", web3);
   const HarvestVaultInterface = getTruffleContract("HarvestVaultInterface", web3);
   const Perpetual = getTruffleContract("Perpetual", web3);
@@ -229,6 +231,27 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
       config.poolDecimals,
       config.priceFeedDecimals // This defaults to 18 unless supplied by user
     );
+  } else if (config.type === "balancerSpot") {
+    const requiredFields = ["poolAddress", "baseAddress", "quoteAddress"];
+
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({ at: "balancerSpotPriceFeed", message: "Creating balancerSpotPriceFeed", config });
+
+    return new BalancerSpotPriceFeed({
+      ...config,
+      logger,
+      web3,
+      getTime,
+      balancerAbi: BalancerSpot.abi,
+      erc20Abi: ERC20.abi,
+      poolAddress: config.poolAddress,
+      quoteAddress: config.quoteAddress,
+      baseAddress: config.baseAddress,
+      blockFinder: getSharedBlockFinder(web3),
+    });
   } else if (config.type === "basketspread") {
     const requiredFields = ["baselinePriceFeeds", "experimentalPriceFeeds"];
 
