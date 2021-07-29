@@ -980,8 +980,36 @@ const defaultConfigs = {
       "[YD-ETH-MAR21]-USDC": {
         type: "balancerSpot",
         poolAddress: "0x5e065D534d1DAaf9E6222AfA1D09e7Dac6cbD0f7",
-        baseAddress: "0x90f802c7e8fb5d40b0de583e34c065a3bd2020d8",
         quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0x90f802c7e8fb5d40b0de583e34c065a3bd2020d8",
+      },
+    },
+  },
+  "[yUSD-SEP20]-EUR": {
+    type: "expression",
+    expression: "\\[yUSD\\-SEP20\\]\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "[yUSD-SEP20]-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0x58ef3abab72c6c365d4d0d8a70039752b9f32bc9",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0x81ab848898b5ffd3354dbbefb333d5d183eedcb5",
+      },
+    },
+  },
+  "BPT[[yUSD-SEP20]+USDC]": {
+    type: "expression",
+    expression: "BPT\\[yUSD\\-SEP20\\] * \\[yUSD\\-SEP20\\]\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[yUSD-SEP20]": {
+        type: "lpBalancer",
+        poolAddress: "0x58ef3abab72c6c365d4d0d8a70039752b9f32bc9",
+        tokenAddress: "0x81ab848898b5ffd3354dbbefb333d5d183eedcb5",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0x58ef3abab72c6c365d4d0d8a70039752b9f32bc9",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       },
     },
   },

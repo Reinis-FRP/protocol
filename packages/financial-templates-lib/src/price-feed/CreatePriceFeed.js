@@ -22,6 +22,7 @@ const { FallBackPriceFeed } = require("./FallBackPriceFeed");
 const { ForexDailyPriceFeed } = require("./ForexDailyPriceFeed");
 const { FundingRateMultiplierPriceFeed } = require("./FundingRateMultiplierPriceFeed");
 const { InvalidPriceFeedMock } = require("./InvalidPriceFeedMock");
+const { LPBalancerPriceFeed } = require("./LPBalancerPriceFeed");
 const { LPPriceFeed } = require("./LPPriceFeed");
 const { MedianizerPriceFeed } = require("./MedianizerPriceFeed");
 const { PriceFeedMockScaled } = require("./PriceFeedMockScaled");
@@ -425,6 +426,23 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
       web3,
       getTime,
       erc20Abi: ERC20.abi,
+      blockFinder: getSharedBlockFinder(web3),
+    });
+  } else if (config.type === "lpBalancer") {
+    const requiredFields = ["poolAddress", "tokenAddress"];
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({ at: "createPriceFeed", message: "Creating LPBalancerPriceFeed", config });
+
+    return new LPBalancerPriceFeed({
+      ...config,
+      logger,
+      web3,
+      getTime,
+      erc20Abi: ERC20.abi,
+      balancerAbi: BalancerSpot.abi,
       blockFinder: getSharedBlockFinder(web3),
     });
   } else if (config.type === "frm") {
