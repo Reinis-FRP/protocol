@@ -6,9 +6,6 @@ pragma solidity ^0.8.0;
  * @dev This only contains the methods/events that we use in our contracts or offchain infrastructure.
  */
 abstract contract BalancerSpot {
-    // Gets spot price from pool without fees
-    function getSpotPriceSansFee(address tokenIn, address tokenOut) external view virtual returns (uint256 spotPrice);
-
     // Gets pool reserve tokens.
     function getFinalTokens() external view virtual returns (address[] memory tokens);
 
@@ -23,4 +20,7 @@ abstract contract BalancerSpot {
 
     // Gets pool token symbol.
     string public symbol;
+
+    // Gets pool totalSupply.
+    uint256 public totalSupply;
 }

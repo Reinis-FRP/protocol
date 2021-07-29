@@ -95,13 +95,17 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
 
   async _getPrice(block, verbose = false) {
     const blockNumber = block.number;
+    const baseBalance = await this._getBalance(blockNumber, this.baseAddress);
+    const quoteBalance = await this._getBalance(blockNumber, this.quoteAddress);
+    const baseWeight = await this._getWeight(blockNumber, this.baseAddress);
+    const quoteWeight = await this._getWeight(blockNumber, this.quoteAddress);
     let price;
     try {
-      price = await this._convertPairDecimals(
-        this.toBN(
-          await this.pool.methods.getSpotPriceSansFee(this.quoteAddress, this.baseAddress).call(undefined, blockNumber)
-        )
-      );
+      price = quoteBalance
+        .mul(this.toBN("10").pow(this.toBN(18)))
+        .div(baseBalance)
+        .mul(baseWeight)
+        .div(quoteWeight);
       if (price.isZero()) {
         price = null;
       }
@@ -110,12 +114,8 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
     }
 
     if (verbose) {
-      const baseBalance = this.fromWei(await this._getBalance(blockNumber, this.baseAddress));
-      const quoteBalance = this.fromWei(await this._getBalance(blockNumber, this.quoteAddress));
       const baseSymbol = (await this._tokenDetails(this.baseAddress)).symbol;
       const quoteSymbol = (await this._tokenDetails(this.quoteAddress)).symbol;
-      const baseWeight = this.fromWei(await this._getWeight(blockNumber, this.baseAddress));
-      const quoteWeight = this.fromWei(await this._getWeight(blockNumber, this.quoteAddress));
       console.group(`\n(Balancer:${baseSymbol}/${quoteSymbol}) Historical pricing @ ${block.timestamp}:`);
       console.log(`- ✅ Spot Price: ${this.fromWei(price)}`);
       console.log(
@@ -123,9 +123,17 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
       );
       console.log(`- call getFinalTokens() method on pool contract ${this.poolAddress} to get reserve token addresses`);
       console.log("- call getBalance and getNormalizedWeight with reserve tokens as parameters, this should get:");
-      console.log(`  - base token with ${baseWeight * 100}% had ${baseBalance} ${baseSymbol}`);
-      console.log(`  - quote token with ${quoteWeight * 100}% had ${quoteBalance} ${quoteSymbol}`);
-      console.log(`  - price can be derived as (${quoteBalance}/${quoteWeight})/(${baseBalance}/${baseWeight})`);
+      console.log(
+        `  - base token with ${this.fromWei(baseWeight) * 100}% had ${this.fromWei(baseBalance)} ${baseSymbol}`
+      );
+      console.log(
+        `  - quote token with ${this.fromWei(quoteWeight) * 100}% had ${this.fromWei(quoteBalance)} ${quoteSymbol}`
+      );
+      console.log(
+        `  - price can be derived as (${this.fromWei(quoteBalance)}/${this.fromWei(quoteWeight)})/(${this.fromWei(
+          baseBalance
+        )}/${this.fromWei(baseWeight)})`
+      );
       console.groupEnd();
     }
 
