@@ -997,7 +997,7 @@ const defaultConfigs = {
       },
     },
   },
-  "BPT[[yUSD-SEP20]+USDC]": {
+  "BPT[[yUSD-SEP20]+USDC]-EUR": {
     type: "expression",
     expression: "BPT\\[yUSD\\-SEP20\\] * \\[yUSD\\-SEP20\\]\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
     customFeeds: {
