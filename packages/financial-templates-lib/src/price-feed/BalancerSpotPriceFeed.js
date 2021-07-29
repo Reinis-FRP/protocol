@@ -114,30 +114,33 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
     }
 
     if (verbose) {
-      const baseSymbol = (await this._tokenDetails(this.baseAddress)).symbol;
-      const quoteSymbol = (await this._tokenDetails(this.quoteAddress)).symbol;
-      console.group(`\n(Balancer:${baseSymbol}/${quoteSymbol}) Historical pricing @ ${block.timestamp}:`);
-      console.log(`- ✅ Spot Price: ${this.fromWei(price)}`);
-      console.log(
-        `- ⚠️  If you want to manually verify the specific spot price, you can query this data on-chain at block #${blockNumber} from Ethereum archive node`
-      );
-      console.log(`- call getFinalTokens() method on pool contract ${this.poolAddress} to get reserve token addresses`);
-      console.log("- call getBalance and getNormalizedWeight with reserve tokens as parameters, this should get:");
-      console.log(
-        `  - base token with ${this.fromWei(baseWeight) * 100}% had ${this.fromWei(baseBalance)} ${baseSymbol}`
-      );
-      console.log(
-        `  - quote token with ${this.fromWei(quoteWeight) * 100}% had ${this.fromWei(quoteBalance)} ${quoteSymbol}`
-      );
-      console.log(
-        `  - price can be derived as (${this.fromWei(quoteBalance)}/${this.fromWei(quoteWeight)})/(${this.fromWei(
-          baseBalance
-        )}/${this.fromWei(baseWeight)})`
-      );
-      console.groupEnd();
+      console.log(await this._printVerbose(block, price, baseWeight, baseBalance, quoteWeight, quoteBalance));
     }
 
     return await this._convertToPriceFeedDecimals(price);
+  }
+
+  // Prints verbose logs
+
+  async _printVerbose(block, price, baseWeight, baseBalance, quoteWeight, quoteBalance) {
+    const baseSymbol = (await this._tokenDetails(this.baseAddress)).symbol;
+    const quoteSymbol = (await this._tokenDetails(this.quoteAddress)).symbol;
+    let output = "";
+    output += `\n(Balancer:${baseSymbol}/${quoteSymbol}) Historical pricing @ ${block.timestamp}:`;
+    output += `\n  - ✅ Spot Price: ${this.fromWei(price)}`;
+    output += `\n  - ⚠️  If you want to manually verify the specific spot price, you can query this data on-chain at block #${block.number} from Ethereum archive node`;
+    output += `\n  - call getFinalTokens() method on pool contract ${this.poolAddress} to get reserve token addresses`;
+    output += "\n  - call getBalance and getNormalizedWeight with reserve tokens as parameters, this should get:";
+    output += `\n    - base token with ${this.fromWei(baseWeight) * 100}% had ${this.fromWei(
+      baseBalance
+    )} ${baseSymbol}`;
+    output += `\n    - quote token with ${this.fromWei(quoteWeight) * 100}% had ${this.fromWei(
+      quoteBalance
+    )} ${quoteSymbol}`;
+    output += `\n    - price can be derived as (${this.fromWei(quoteBalance)}/${this.fromWei(
+      quoteWeight
+    )})/(${this.fromWei(baseBalance)}/${this.fromWei(baseWeight)})`;
+    return output;
   }
 
   // Gets historical token balance in Balancer pool
