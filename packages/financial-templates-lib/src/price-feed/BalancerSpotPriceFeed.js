@@ -95,16 +95,18 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
 
   async _getPrice(block, verbose = false) {
     const blockNumber = block.number;
-    let rawPrice;
+    let price;
     try {
-      rawPrice = this.toBN(
-        await this.pool.methods.getSpotPriceSansFee(this.quoteAddress, this.baseAddress).call(undefined, blockNumber)
+      price = await this._convertPairDecimals(
+        this.toBN(
+          await this.pool.methods.getSpotPriceSansFee(this.quoteAddress, this.baseAddress).call(undefined, blockNumber)
+        )
       );
-      if (rawPrice.isZero()) {
-        rawPrice = null;
+      if (price.isZero()) {
+        price = null;
       }
     } catch (err) {
-      rawPrice = null;
+      price = null;
     }
 
     if (verbose) {
@@ -115,7 +117,7 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
       const baseWeight = this.fromWei(await this._getWeight(blockNumber, this.baseAddress));
       const quoteWeight = this.fromWei(await this._getWeight(blockNumber, this.quoteAddress));
       console.group(`\n(Balancer:${baseSymbol}/${quoteSymbol}) Historical pricing @ ${block.timestamp}:`);
-      console.log(`- ✅ Spot Price: ${this.fromWei(await this._convertPairDecimals(rawPrice))}`);
+      console.log(`- ✅ Spot Price: ${this.fromWei(price)}`);
       console.log(
         `- ⚠️  If you want to manually verify the specific spot price, you can query this data on-chain at block #${blockNumber} from Ethereum archive node`
       );
@@ -127,7 +129,7 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
       console.groupEnd();
     }
 
-    return await this._convertPairDecimals(rawPrice);
+    return await this._convertOutputDecimals(price);
   }
 
   // Gets historical token balance in Balancer pool
@@ -192,6 +194,12 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
   async _convertTokenDecimals(value, address) {
     const convertTokenDecimals = ConvertDecimals(parseInt((await this._tokenDetails(address)).decimals), 18, this.web3);
     return convertTokenDecimals(value);
+  }
+
+  // Converts decimals from 18 decimals to the configured output decimals.
+  async _convertOutputDecimals(value) {
+    const convertOutputDecimals = ConvertDecimals(18, this.priceFeedDecimals, this.web3);
+    return convertOutputDecimals(value);
   }
 }
 
