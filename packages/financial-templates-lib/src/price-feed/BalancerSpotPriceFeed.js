@@ -129,7 +129,7 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
       console.groupEnd();
     }
 
-    return await this._convertOutputDecimals(price);
+    return await this._convertToPriceFeedDecimals(price);
   }
 
   // Gets historical token balance in Balancer pool
@@ -196,8 +196,8 @@ class BalancerSpotPriceFeed extends PriceFeedInterface {
     return convertTokenDecimals(value);
   }
 
-  // Converts decimals from 18 decimals to the configured output decimals.
-  async _convertOutputDecimals(value) {
+  // Converts decimals from 18 decimals to the configured price feed decimals.
+  async _convertToPriceFeedDecimals(value) {
     const convertOutputDecimals = ConvertDecimals(18, this.priceFeedDecimals, this.web3);
     return convertOutputDecimals(value);
   }
