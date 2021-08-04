@@ -1,7 +1,7 @@
 import assert from "assert";
 import * as uma from "@uma/sdk";
 import { Json, Actions, AppState, CurrencySymbol, PriceSample } from "../..";
-import Queries from "../../libs/queries";
+import * as Queries from "../../libs/queries";
 import { nowS } from "../../libs/utils";
 import lodash from "lodash";
 
@@ -12,7 +12,7 @@ type Dependencies = AppState;
 type Config = undefined;
 
 export function Handlers(config: Config, appState: Dependencies): Actions {
-  const queries = Queries(appState);
+  const queries = Queries.Emp(appState);
   const {
     registeredEmps,
     erc20s,
@@ -34,12 +34,12 @@ export function Handlers(config: Config, appState: Dependencies): Actions {
     lastBlock() {
       return appState.lastBlock;
     },
-    listActiveEmps: queries.listActiveEmps,
-    listExpiredEmps: queries.listExpiredEmps,
+    listActiveEmps: queries.listActive,
+    listExpiredEmps: queries.listExpired,
     async getEmpState(address: string) {
       assert(await registeredEmps.has(address), "Not a valid emp address: " + address);
-      const state = await queries.getAnyEmp(address);
-      return queries.getFullEmpState(state);
+      const state = await queries.getAny(address);
+      return queries.getFullState(state);
     },
     async getErc20Info(address: string) {
       return erc20s.get(address);
@@ -68,14 +68,14 @@ export function Handlers(config: Config, appState: Dependencies): Actions {
     // get synthetic price in usd for an emp address
     async latestSyntheticPrice(empAddress: string, currency: CurrencySymbol = "usd") {
       assert(empAddress, "requires an empAddress");
-      const emp = await queries.getAnyEmp(empAddress);
+      const emp = await queries.getAny(empAddress);
       assert(exists(emp.tokenCurrency), "EMP does not have token currency address");
       return queries.latestPriceByTokenAddress(emp.tokenCurrency, currency);
     },
     // get collateral price in usd for an emp address
     async latestCollateralPrice(empAddress: string, currency: CurrencySymbol = "usd") {
       assert(empAddress, "requires an empAddress");
-      const emp = await queries.getAnyEmp(empAddress);
+      const emp = await queries.getAny(empAddress);
       assert(exists(emp.collateralCurrency), "EMP does not have collateral currency address");
       return queries.latestPriceByTokenAddress(emp.collateralCurrency, currency);
     },
@@ -83,32 +83,32 @@ export function Handlers(config: Config, appState: Dependencies): Actions {
     sliceHistoricalPricesByTokenAddress: queries.sliceHistoricalPricesByTokenAddress,
     async historicalSynthPrices(empAddress: string, start = 0, end: number = Date.now()): Promise<PriceSample[]> {
       assert(empAddress, "requires an empAddress");
-      const emp = await queries.getAnyEmp(empAddress);
+      const emp = await queries.getAny(empAddress);
       assert(exists(emp.tokenCurrency), "EMP does not have token currency address");
       return queries.historicalPricesByTokenAddress(emp.tokenCurrency, start, end);
     },
     async historicalCollateralPrices(empAddress: string, start = 0, end: number = Date.now()): Promise<PriceSample[]> {
       assert(empAddress, "requires an empAddress");
-      const emp = await queries.getAnyEmp(empAddress);
+      const emp = await queries.getAny(empAddress);
       assert(exists(emp.collateralCurrency), "EMP does not have token currency address");
       return queries.historicalPricesByTokenAddress(emp.collateralCurrency, start, end);
     },
     async sliceHistoricalSynthPrices(empAddress: string, start = 0, length = 1): Promise<PriceSample[]> {
       assert(empAddress, "requires an empAddress");
       assert(length < 1000, "length must be less than 1000 samples");
-      const emp = await queries.getAnyEmp(empAddress);
+      const emp = await queries.getAny(empAddress);
       assert(exists(emp.tokenCurrency), "EMP does not have token currency address");
       return queries.sliceHistoricalPricesByTokenAddress(emp.tokenCurrency, start, length);
     },
     async sliceHistoricalCollateralPrices(empAddress: string, start = 0, length = 1): Promise<PriceSample[]> {
       assert(empAddress, "requires an empAddress");
       assert(length < 1000, "length must be less than 1000 samples");
-      const emp = await queries.getAnyEmp(empAddress);
+      const emp = await queries.getAny(empAddress);
       assert(exists(emp.collateralCurrency), "EMP does not have token currency address");
       return queries.sliceHistoricalPricesByTokenAddress(emp.collateralCurrency, start, length);
     },
     async tvl(addresses: string[] = [], currency: CurrencySymbol = "usd") {
-      if (addresses == null || addresses.length == 0) return queries.getGlobalTvl(currency);
+      if (addresses == null || addresses.length == 0) return queries.getTotalTvl(currency);
       addresses = addresses ? lodash.castArray(addresses) : [];
       return queries.sumTvl(addresses, currency);
     },
@@ -118,35 +118,35 @@ export function Handlers(config: Config, appState: Dependencies): Actions {
       return queries.sumTvm(addresses, currency);
     },
     async tvlHistoryBetween(empAddress: string, start = 0, end: number = nowS(), currency: CurrencySymbol = "usd") {
-      assert(stats[currency], "Invalid currency type: " + currency);
-      return stats[currency].history.tvl.betweenByAddress(empAddress, start, end);
+      assert(stats.emp[currency], "Invalid currency type: " + currency);
+      return stats.emp[currency].history.tvl.betweenByAddress(empAddress, start, end);
     },
     async tvmHistoryBetween(empAddress: string, start = 0, end: number = nowS(), currency: CurrencySymbol = "usd") {
-      assert(stats[currency], "Invalid currency type: " + currency);
-      return stats[currency].history.tvm.betweenByAddress(empAddress, start, end);
+      assert(stats.emp[currency], "Invalid currency type: " + currency);
+      return stats.emp[currency].history.tvm.betweenByAddress(empAddress, start, end);
     },
     async globalTvlHistoryBetween(start = 0, end: number = nowS(), currency: CurrencySymbol = "usd") {
-      assert(stats[currency], "Invalid currency type: " + currency);
-      return stats[currency].history.tvl.betweenByGlobal(start, end);
+      assert(stats.emp[currency], "Invalid currency type: " + currency);
+      return stats.emp[currency].history.tvl.betweenByGlobal(start, end);
     },
     async tvlHistorySlice(empAddress: string, start = 0, length = 1, currency: CurrencySymbol = "usd") {
-      assert(stats[currency], "Invalid currency type: " + currency);
-      return stats[currency].history.tvl.sliceByAddress(empAddress, start, length);
+      assert(stats.emp[currency], "Invalid currency type: " + currency);
+      return stats.emp[currency].history.tvl.sliceByAddress(empAddress, start, length);
     },
     async globalTvlSlice(start = 0, length = 1, currency: CurrencySymbol = "usd") {
-      assert(stats[currency], "Invalid currency type: " + currency);
-      return stats[currency].history.tvl.sliceByGlobal(start, length);
+      assert(stats.emp[currency], "Invalid currency type: " + currency);
+      return stats.emp[currency].history.tvl.sliceByGlobal(start, length);
     },
     async tvmHistorySlice(empAddress: string, start = 0, length = 1, currency: CurrencySymbol = "usd") {
-      assert(stats[currency], "Invalid currency type: " + currency);
+      assert(stats.emp[currency], "Invalid currency type: " + currency);
       assert(length < 1000, "length must be less than 1000 samples");
-      return stats[currency].history.tvm.sliceByAddress(empAddress, start, length);
+      return stats.emp[currency].history.tvm.sliceByAddress(empAddress, start, length);
     },
     async listTvls(currency: CurrencySymbol = "usd") {
-      return appState.stats[currency].latest.tvl.values();
+      return appState.stats.emp[currency].latest.tvl.values();
     },
     async listTvms(currency: CurrencySymbol = "usd") {
-      return appState.stats[currency].latest.tvm.values();
+      return appState.stats.emp[currency].latest.tvm.values();
     },
     async historicalMarketPricesBetween(tokenAddress: string, start = 0, end: number = nowS()) {
       assert(tokenAddress, "requires token address");

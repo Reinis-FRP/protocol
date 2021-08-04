@@ -3,7 +3,7 @@ import SynthPrices from "../libs/synthPrices";
 import { AppState, PriceSample, Currencies, BaseConfig } from "..";
 import * as uma from "@uma/sdk";
 import bluebird from "bluebird";
-import Queries from "../libs/queries";
+import * as Queries from "../libs/queries";
 import { calcSyntheticPrice, Profile } from "../libs/utils";
 
 interface Config extends BaseConfig {
@@ -25,7 +25,7 @@ export default function (config: Config, appState: Dependencies) {
   const { web3, emps, synthPrices, prices } = appState;
   const getSynthPrices = SynthPrices(config, web3);
 
-  const queries = Queries(appState);
+  const queries = Queries.Emp(appState);
   const profile = Profile(debug);
 
   // get or create a history table by an erc20 token address. this might be a bit confusing because we also have a
@@ -91,9 +91,9 @@ export default function (config: Config, appState: Dependencies) {
   }
 
   async function getFullEmpState(empAddress: string) {
-    const emp = await queries.getAnyEmp(empAddress);
+    const emp = await queries.getAny(empAddress);
     // the full state has collateral decimals, pulled from erc20 state
-    return queries.getFullEmpState(emp);
+    return queries.getFullState(emp);
   }
 
   // gets any price from table, synthetic or collateral. Synthetics go into this table once converted to usd
@@ -110,7 +110,7 @@ export default function (config: Config, appState: Dependencies) {
 
   // convert synth price to {currency} which is typically usd, based on the current collateral price
   async function updateLatestPrice(empAddress: string) {
-    const emp = await queries.getAnyEmp(empAddress);
+    const emp = await queries.getAny(empAddress);
 
     assert(uma.utils.exists(emp.collateralCurrency), "Requires contract collateralCurrency: " + empAddress);
     assert(uma.utils.exists(emp.tokenCurrency), "Requires contract tokenCurrency: " + empAddress);

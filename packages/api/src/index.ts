@@ -5,6 +5,10 @@ import type Zrx from "./libs/zrx";
 
 export { Channels } from "./services/express-channels";
 
+export type EmpState = uma.tables.emps.Data;
+export type LspState = lsps.Data;
+export type AllContractStates = EmpState | LspState;
+
 export interface BaseConfig {
   debug?: boolean;
 }
@@ -17,7 +21,7 @@ export type ProcessEnv = {
 import type Web3 from "web3";
 export type Obj = { [key: string]: any };
 // serializable json type
-export type Json = null | undefined | boolean | number | string | Json[] | { [prop: string]: Json };
+export type Json = null | undefined | void | boolean | number | string | Json[] | { [prop: string]: Json };
 
 // Represents an function where inputs and outputs can serialize to/from json
 export type Action = (...args: any[]) => Json | Promise<Json>;
@@ -67,14 +71,36 @@ export type AppState = {
   };
   erc20s: uma.tables.erc20s.JsMap;
   stats: {
-    usd: {
-      latest: {
-        tvl: empStats.JsMap;
-        tvm: empStats.JsMap;
+    emp: {
+      usd: {
+        latest: {
+          tvl: empStats.JsMap;
+          tvm: empStats.JsMap;
+        };
+        history: {
+          tvl: empStatsHistory.SortedJsMap;
+          tvm: empStatsHistory.SortedJsMap;
+        };
       };
-      history: {
-        tvl: empStatsHistory.SortedJsMap;
-        tvm: empStatsHistory.SortedJsMap;
+    };
+    lsp: {
+      usd: {
+        latest: {
+          tvl: empStats.JsMap;
+        };
+        history: {
+          tvl: empStatsHistory.SortedJsMap;
+        };
+      };
+    };
+    global: {
+      usd: {
+        latest: {
+          tvl: PriceSample;
+        };
+        history: {
+          tvl: empStatsHistory.SortedJsMap;
+        };
       };
     };
   };

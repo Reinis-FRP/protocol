@@ -5,7 +5,7 @@ import { utils, BigNumber, Contract } from "ethers";
 import assert from "assert";
 const { parseUnits, parseBytes32String } = utils;
 
-export const SCALING_MULTIPLIER = parseUnits("1");
+export const SCALING_MULTIPLIER: BigNumber = parseUnits("1");
 export type BigNumberish = number | string | BigNumber;
 
 export { parseUnits };
@@ -28,7 +28,7 @@ export function calcGcr(
     uma.tables.emps.Data,
     "totalTokensOutstanding" | "totalPositionCollateral" | "tokenDecimals" | "collateralDecimals"
   >
-) {
+): BigNumber {
   const { totalTokensOutstanding, totalPositionCollateral, tokenDecimals, collateralDecimals } = params;
   assert(uma.utils.exists(totalTokensOutstanding), "requires total tokens outstanding");
   assert(uma.utils.exists(totalPositionCollateral), "requires total position collateral");
@@ -141,3 +141,10 @@ export const Profile = (enabled: boolean | undefined) => {
     return () => console.timeEnd(id);
   };
 };
+
+// defines a standard convention to pass arrays through an env.  assumes each element in the string is delimited by a comma
+export function parseEnvArray(str: string, delimiter = ","): string[] {
+  if (str.length == 0) return [];
+  if (!str.includes(delimiter)) return [];
+  return str.split(delimiter).map((x) => x.trim());
+}
