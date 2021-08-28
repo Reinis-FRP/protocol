@@ -1013,6 +1013,65 @@ const defaultConfigs = {
       },
     },
   },
+  "UMA-EUR": {
+    type: "fallback",
+    orderedFeeds: [
+      {
+        type: "cryptowatch",
+        invertPrice: false,
+        minTimeBetweenUpdates: 60,
+        exchange: "coinbase-pro",
+        pair: "umaeur",
+        maxBeforeTimestampBuffer: 300,
+      },
+      {
+        type: "expression",
+        expression: "UMA\\-ETH_BAL * ETH\\-EUR",
+        customFeeds: {
+          "UMA-ETH_BAL": {
+            type: "balancerSpot",
+            poolAddress: "0xb1f9ec02480dd9e16053b010dfc6e6c4b72ecad5",
+            quoteAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            baseAddress: "0x04fa0d235c4abf4bcf4787af4cf447de572ef828",
+          },
+        },
+      },
+    ],
+  },
+  "BAL-EUR": {
+    type: "fallback",
+    orderedFeeds: [
+      { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "baleur" },
+      {
+        type: "expression",
+        expression: "BAL\\-ETH_BAL * ETH\\-EUR",
+        customFeeds: {
+          "BAL-ETH_BAL": {
+            type: "balancerSpot",
+            poolAddress: "0x59a19d8c652fa0284f44113d0ff9aba70bd46fb4",
+            quoteAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            baseAddress: "0xba100000625a3754423978a60c9317c58a424e3d",
+          },
+        },
+      },
+    ],
+  },
+  "BPT[BAL_80+ETH_20]-EUR": {
+    type: "expression",
+    expression: "BPT\\[BAL\\] * BAL\\-EUR + BPT\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "BPT[BAL]": {
+        type: "lpBalancer",
+        poolAddress: "0x59a19d8c652fa0284f44113d0ff9aba70bd46fb4",
+        tokenAddress: "0xba100000625a3754423978a60c9317c58a424e3d",
+      },
+      "BPT[ETH]": {
+        type: "lpBalancer",
+        poolAddress: "0x59a19d8c652fa0284f44113d0ff9aba70bd46fb4",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
