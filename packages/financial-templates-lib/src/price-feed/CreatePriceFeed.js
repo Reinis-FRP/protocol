@@ -818,7 +818,7 @@ async function createReferencePriceFeedForFinancialContract(
     defaultConfig = defaultConfigs[_identifier];
   }
 
-  console.log("%o", { identifier: _identifier, defaultConfig });
+  console.log(JSON.stringify({ identifier: _identifier, defaultConfig }, null, 2));
 
   logger.debug({
     at: "createReferencePriceFeedForFinancialContract",
