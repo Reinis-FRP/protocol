@@ -28,6 +28,7 @@ const { MedianizerPriceFeed } = require("./MedianizerPriceFeed");
 const { PriceFeedMockScaled } = require("./PriceFeedMockScaled");
 const { QuandlPriceFeed } = require("./QuandlPriceFeed");
 const { TraderMadePriceFeed } = require("./TraderMadePriceFeed");
+const { UniswapSpotPriceFeed } = require("./UniswapSpotPriceFeed");
 const { UniswapV2PriceFeed, UniswapV3PriceFeed } = require("./UniswapPriceFeed");
 const { VaultPriceFeed, HarvestVaultPriceFeed } = require("./VaultPriceFeed");
 
@@ -37,6 +38,7 @@ const uniswapBlockCache = {};
 async function createPriceFeed(logger, web3, networker, getTime, config) {
   const UniswapV2 = getTruffleContract("UniswapV2", web3);
   const UniswapV3 = getTruffleContract("UniswapV3", web3);
+  const UniswapV2Spot = getTruffleContract("UniswapV2Spot", web3);
   const ERC20 = getTruffleContract("ExpandedERC20", web3);
   const Balancer = getTruffleContract("Balancer", web3);
   const BalancerSpot = getTruffleContract("BalancerSpot", web3);
@@ -252,6 +254,25 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
       poolAddress: config.poolAddress,
       quoteAddress: config.quoteAddress,
       baseAddress: config.baseAddress,
+      blockFinder: getSharedBlockFinder(web3),
+    });
+  } else if (config.type === "uniswapSpot") {
+    const requiredFields = ["uniswapAddress"];
+
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({ at: "uniswapSpotPriceFeed", message: "Creating uniswapSpotPriceFeed", config });
+
+    return new UniswapSpotPriceFeed({
+      ...config,
+      logger,
+      web3,
+      getTime,
+      uniswapAbi: UniswapV2Spot.abi,
+      erc20Abi: ERC20.abi,
+      uniswapAddress: config.uniswapAddress,
       blockFinder: getSharedBlockFinder(web3),
     });
   } else if (config.type === "basketspread") {
