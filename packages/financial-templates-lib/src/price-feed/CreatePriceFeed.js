@@ -14,6 +14,7 @@ const { CoinGeckoPriceFeed } = require("./CoinGeckoPriceFeed");
 const { CoinMarketCapPriceFeed } = require("./CoinMarketCapPriceFeed");
 const { CompoundPriceFeed } = require("./CompoundPriceFeed");
 const { CryptoWatchPriceFeed } = require("./CryptoWatchPriceFeed");
+const { CurveSpotPriceFeed } = require("./CurveSpotPriceFeed");
 const { DefiPulsePriceFeed } = require("./DefiPulsePriceFeed");
 const { DominationFinancePriceFeed } = require("./DominationFinancePriceFeed");
 const { ETHVIXPriceFeed } = require("./EthVixPriceFeed");
@@ -23,6 +24,7 @@ const { ForexDailyPriceFeed } = require("./ForexDailyPriceFeed");
 const { FundingRateMultiplierPriceFeed } = require("./FundingRateMultiplierPriceFeed");
 const { InvalidPriceFeedMock } = require("./InvalidPriceFeedMock");
 const { LPBalancerPriceFeed } = require("./LPBalancerPriceFeed");
+const { LPCurvePriceFeed } = require("./LPCurvePriceFeed");
 const { LPPriceFeed } = require("./LPPriceFeed");
 const { MedianizerPriceFeed } = require("./MedianizerPriceFeed");
 const { PriceFeedMockScaled } = require("./PriceFeedMockScaled");
@@ -46,6 +48,10 @@ async function createPriceFeed(logger, web3, networker, getTime, config, identif
   const HarvestVaultInterface = getTruffleContract("HarvestVaultInterface", web3);
   const Perpetual = getTruffleContract("Perpetual", web3);
   const CompoundInterface = getTruffleContract("CompoundInterface", web3);
+  const CurveAddressProvider = getTruffleContract("CurveAddressProvider", web3);
+  const CurveRegistry = getTruffleContract("CurveRegistry", web3);
+  const CurvePoolInfo = getTruffleContract("CurvePoolInfo", web3);
+  const CurvePool = getTruffleContract("CurvePool", web3);
 
   if (config.type === "cryptowatch") {
     const requiredFields = ["exchange", "pair", "lookback", "minTimeBetweenUpdates"];
@@ -465,6 +471,48 @@ async function createPriceFeed(logger, web3, networker, getTime, config, identif
       getTime,
       erc20Abi: ERC20.abi,
       balancerAbi: BalancerSpot.abi,
+      blockFinder: getSharedBlockFinder(web3),
+    });
+  } else if (config.type === "lpCurve") {
+    const requiredFields = ["lpAddress", "tokenAddress"];
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({ at: "createPriceFeed", message: "Creating LPCurvePriceFeed", config });
+
+    return new LPCurvePriceFeed({
+      ...config,
+      logger,
+      web3,
+      getTime,
+      erc20Abi: ERC20.abi,
+      curveAddressProviderAbi: CurveAddressProvider.abi,
+      curveRegistryAbi: CurveRegistry.abi,
+      curvePoolInfoAbi: CurvePoolInfo.abi,
+      curvePoolAbi: CurvePool.abi,
+      vaultAbi: VaultInterface.abi,
+      blockFinder: getSharedBlockFinder(web3),
+    });
+  } else if (config.type === "curveSpot") {
+    const requiredFields = ["poolAddress", "baseAddress", "quoteAddress"];
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({ at: "createPriceFeed", message: "Creating CurveSpotPriceFeed", config });
+
+    return new CurveSpotPriceFeed({
+      ...config,
+      logger,
+      web3,
+      getTime,
+      erc20Abi: ERC20.abi,
+      curveAddressProviderAbi: CurveAddressProvider.abi,
+      curveRegistryAbi: CurveRegistry.abi,
+      curvePoolInfoAbi: CurvePoolInfo.abi,
+      curvePoolAbi: CurvePool.abi,
+      vaultAbi: VaultInterface.abi,
       blockFinder: getSharedBlockFinder(web3),
     });
   } else if (config.type === "frm") {
