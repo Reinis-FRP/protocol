@@ -35,7 +35,7 @@ const { VaultPriceFeed, HarvestVaultPriceFeed } = require("./VaultPriceFeed");
 // Global cache for block (promises) used by uniswap price feeds.
 const uniswapBlockCache = {};
 
-async function createPriceFeed(logger, web3, networker, getTime, config) {
+async function createPriceFeed(logger, web3, networker, getTime, config, identifier) {
   const UniswapV2 = getTruffleContract("UniswapV2", web3);
   const UniswapV3 = getTruffleContract("UniswapV3", web3);
   const UniswapV2Spot = getTruffleContract("UniswapV2Spot", web3);
@@ -397,7 +397,7 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
 
     logger.debug({ at: "createPriceFeed", message: "Creating ExpressionPriceFeed", config });
 
-    return await _createExpressionPriceFeed(config);
+    return await _createExpressionPriceFeed(config, identifier);
   } else if (config.type === "vault") {
     const requiredFields = ["address"];
     if (isMissingField(config, requiredFields, logger)) {
@@ -526,7 +526,7 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
   // Internal helper methods:
 
   // Returns an ExpressionPriceFeed.
-  async function _createExpressionPriceFeed(expressionConfig) {
+  async function _createExpressionPriceFeed(expressionConfig, identifier) {
     // Build list of configs that could be used in the expression including default price feed configs and customFeeds
     // that the user has provided inside the ExpressionPriceFeed config. Note: default configs are overriden by
     // customFeeds with the same name. Tranform keys by escaping any special characters in the identifier names..
@@ -575,7 +575,7 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
 
             // If this returns null, just return upstream since the error has already been logged and the null will be
             // detected upstream.
-            const priceFeed = await createPriceFeed(logger, web3, networker, getTime, combinedConfig);
+            const priceFeed = await createPriceFeed(logger, web3, networker, getTime, combinedConfig, symbol);
             return [symbol, priceFeed];
           })
         )
@@ -585,7 +585,12 @@ async function createPriceFeed(logger, web3, networker, getTime, config) {
     // Return null if any of the price feeds in the map are null (meaning there was an error).
     if (Object.values(priceFeedMap).some((priceFeed) => priceFeed === null)) return null;
 
-    return new ExpressionPriceFeed(priceFeedMap, expressionConfig.expression, expressionConfig.priceFeedDecimals);
+    return new ExpressionPriceFeed(
+      priceFeedMap,
+      expressionConfig.expression,
+      expressionConfig.priceFeedDecimals,
+      identifier
+    );
   }
 
   async function _createMedianizerPriceFeed(medianizerConfig) {
@@ -881,7 +886,7 @@ async function createReferencePriceFeedForFinancialContract(
       getTime = async () => (await web3.eth.getBlock("latest")).timestamp;
     }
   }
-  return await createPriceFeed(logger, web3, networker, getTime, combinedConfig);
+  return await createPriceFeed(logger, web3, networker, getTime, combinedConfig, _identifier);
 }
 
 function getFinancialContractIdentifierAtAddress(web3, financialContractAddress) {

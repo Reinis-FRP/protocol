@@ -51,8 +51,10 @@ class ExpressionPriceFeed extends PriceFeedInterface {
    *                 Ex: "(USDETH + COMPUSD) / COMPUSD"
    * @param {number} decimals decimals to use in the price output.
    */
-  constructor(priceFeedMap, expression, decimals = 18) {
+  constructor(priceFeedMap, expression, decimals = 18, identifier) {
     super();
+    this.expression = expression;
+    this.identifier = identifier;
     this.expressionCode = math.parse(expression).compile();
     this.priceFeedMap = priceFeedMap;
     this.decimals = decimals;
@@ -72,7 +74,22 @@ class ExpressionPriceFeed extends PriceFeedInterface {
       throw errors;
     }
 
+    if (verbose) {
+      console.log(await this._printVerbose(historicalPrices));
+    }
+
     return this._convertToFixed(this.expressionCode.evaluate(historicalPrices), this.getPriceFeedDecimals());
+  }
+
+  _printVerbose(historicalPrices) {
+    let output = "";
+    output += `\n(Expression:${this.identifier.replace(/\\/g, "")} = ${this.expression.replace(/\\/g, "")}):`;
+    output += `\n  - ✅ Result: ${this.expressionCode.evaluate(historicalPrices)}`;
+    output += "\n  - Where:";
+    for (let identifier in historicalPrices) {
+      output += `\n    - ${identifier.replace(/\\/g, "")} = ${historicalPrices[identifier]}`;
+    }
+    return output;
   }
 
   getLastUpdateTime() {
