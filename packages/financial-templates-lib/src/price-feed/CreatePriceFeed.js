@@ -37,7 +37,7 @@ const { VaultPriceFeed, HarvestVaultPriceFeed } = require("./VaultPriceFeed");
 // Global cache for block (promises) used by uniswap price feeds.
 const uniswapBlockCache = {};
 
-async function createPriceFeed(logger, web3, networker, getTime, config, identifier) {
+async function createPriceFeed(logger, web3, networker, getTime, config, identifier = "") {
   const UniswapV2 = getTruffleContract("UniswapV2", web3);
   const UniswapV3 = getTruffleContract("UniswapV3", web3);
   const UniswapV2Spot = getTruffleContract("UniswapV2Spot", web3);
