@@ -132,19 +132,24 @@ class CompoundPriceFeed extends PriceFeedInterface {
 
   async _underlyingTokenDetails() {
     if (!this.underlyingTokenDetails) {
-      const underlyingTokenAddress = await this.compound.methods.underlying().call();
-      const underlyingToken = new this.web3.eth.Contract(this.erc20Abi, underlyingTokenAddress);
-
       this.underlyingTokenDetails = {};
-      try {
-        this.underlyingTokenDetails.decimals = await underlyingToken.methods.decimals().call();
-      } catch (err) {
+      if (this.compound.options.address.toLowerCase() === "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5") {
         this.underlyingTokenDetails.decimals = 18;
-      }
-      try {
-        this.underlyingTokenDetails.symbol = await underlyingToken.methods.symbol().call();
-      } catch (err) {
-        this.underlyingTokenDetails.symbol = "";
+        this.underlyingTokenDetails.symbol = "ETH";
+      } else {
+        const underlyingTokenAddress = await this.compound.methods.underlying().call();
+        const underlyingToken = new this.web3.eth.Contract(this.erc20Abi, underlyingTokenAddress);
+
+        try {
+          this.underlyingTokenDetails.decimals = await underlyingToken.methods.decimals().call();
+        } catch (err) {
+          this.underlyingTokenDetails.decimals = 18;
+        }
+        try {
+          this.underlyingTokenDetails.symbol = await underlyingToken.methods.symbol().call();
+        } catch (err) {
+          this.underlyingTokenDetails.symbol = "";
+        }
       }
     }
     return this.underlyingTokenDetails;
