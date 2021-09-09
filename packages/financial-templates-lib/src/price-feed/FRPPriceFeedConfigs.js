@@ -1072,6 +1072,109 @@ const defaultConfigs = {
       },
     },
   },
+  "YAM-EUR": {
+    type: "expression",
+    expression: "YAM\\-LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\] * LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\-EUR",
+    customFeeds: {
+      "YAM-LP[yDAI-yUSDC-yUSDT-yTUSD]": {
+        type: "uniswapSpot",
+        uniswapAddress: "0x2c7a51a357d5739c5c74bf3c96816849d2c9f726",
+      },
+    },
+  },
+  "LP[yDAI-yUSDC-yUSDT-yTUSD]-EUR": {
+    type: "expression",
+    expression:
+      "LP\\[DAI\\] * DAI\\-EUR + LP\\[USDC\\] * USDC\\-EUR + LP\\[USDT\\] * USDT\\-EUR + LP\\[TUSD\\] * TUSD\\-EUR",
+    customFeeds: {
+      "LP[DAI]": {
+        type: "lpCurve",
+        lpAddress: "0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8",
+        tokenAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      },
+      "LP[USDC]": {
+        type: "lpCurve",
+        lpAddress: "0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8",
+        tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      },
+      "LP[USDT]": {
+        type: "lpCurve",
+        lpAddress: "0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8",
+        tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      },
+      "LP[TUSD]": {
+        type: "lpCurve",
+        lpAddress: "0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8",
+        tokenAddress: "0x0000000000085d4780B73119b644AE5ecd22b376",
+      },
+      "TUSD-EUR": {
+        type: "expression",
+        expression: "median(TUSD\\-DAI * DAI\\-EUR, TUSD\\-USDC * USDC\\-EUR, TUSD\\-USDT * USDT\\-EUR)",
+        customFeeds: {
+          "TUSD-DAI": {
+            type: "curveSpot",
+            poolAddress: "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51",
+            baseAddress: "0x0000000000085d4780B73119b644AE5ecd22b376",
+            quoteAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+          },
+          "TUSD-USDC": {
+            type: "curveSpot",
+            poolAddress: "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51",
+            baseAddress: "0x0000000000085d4780B73119b644AE5ecd22b376",
+            quoteAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          },
+          "TUSD-USDT": {
+            type: "curveSpot",
+            poolAddress: "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51",
+            baseAddress: "0x0000000000085d4780B73119b644AE5ecd22b376",
+            quoteAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+          },
+        },
+      },
+    },
+  },
+  "UNI-V2[YAM-LP[yDAI-yUSDC-yUSDT-yTUSD]]-EUR": {
+    type: "expression",
+    expression:
+      "UNI\\-V2\\[YAM\\] * YAM\\-EUR + UNI\\-V2\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\] * LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\-EUR",
+    customFeeds: {
+      "UNI-V2[YAM]": {
+        type: "lpUniswap",
+        poolAddress: "0x2c7a51a357d5739c5c74bf3c96816849d2c9f726",
+        tokenAddress: "0x0e2298e3b3390e3b945a5456fbf59ecc3f55da16",
+      },
+      "UNI-V2[LP[yDAI-yUSDC-yUSDT-yTUSD]]": {
+        type: "lpUniswap",
+        poolAddress: "0x2c7a51a357d5739c5c74bf3c96816849d2c9f726",
+        tokenAddress: "0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8",
+      },
+    },
+  },
+  "CRV-EUR": {
+    type: "fallback",
+    invertPrice: false,
+    minTimeBetweenUpdates: 60,
+    orderedFeeds: [
+      { type: "cryptowatch", exchange: "kraken", pair: "crveur" },
+      {
+        type: "expression",
+        expression: "CRV\\-USDT * USDT\\-EUR",
+        customFeeds: { "CRV-USDT": { type: "cryptowatch", exchange: "binance", pair: "crvusdt" } },
+      },
+      {
+        type: "expression",
+        expression: "CRV\\-ETH * ETH\\-EUR",
+        customFeeds: {
+          "CRV-ETH": {
+            type: "uniswapSpot",
+            uniswapAddress: "0x3dA1313aE46132A397D90d95B1424A9A7e3e0fCE",
+            invertPrice: true,
+          },
+        },
+      },
+    ],
+  },
+  "cETH-ETH": { type: "compound", address: "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5" },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
