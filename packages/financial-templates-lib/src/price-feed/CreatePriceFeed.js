@@ -26,6 +26,7 @@ const { InvalidPriceFeedMock } = require("./InvalidPriceFeedMock");
 const { LPBalancerPriceFeed } = require("./LPBalancerPriceFeed");
 const { LPCurvePriceFeed } = require("./LPCurvePriceFeed");
 const { LPPriceFeed } = require("./LPPriceFeed");
+const { LPUniswapPriceFeed } = require("./LPUniswapPriceFeed");
 const { MedianizerPriceFeed } = require("./MedianizerPriceFeed");
 const { PriceFeedMockScaled } = require("./PriceFeedMockScaled");
 const { QuandlPriceFeed } = require("./QuandlPriceFeed");
@@ -513,6 +514,25 @@ async function createPriceFeed(logger, web3, networker, getTime, config, identif
       curvePoolInfoAbi: CurvePoolInfo.abi,
       curvePoolAbi: CurvePool.abi,
       vaultAbi: VaultInterface.abi,
+      blockFinder: getSharedBlockFinder(web3),
+    });
+  } else if (config.type === "lpUniswap") {
+    const requiredFields = ["poolAddress", "tokenAddress"];
+
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({ at: "LPUniswapPriceFeed", message: "Creating LPUniswapPriceFeed", config });
+
+    return new LPUniswapPriceFeed({
+      ...config,
+      logger,
+      web3,
+      getTime,
+      uniswapAbi: UniswapV2Spot.abi,
+      erc20Abi: ERC20.abi,
+      uniswapAddress: config.uniswapAddress,
       blockFinder: getSharedBlockFinder(web3),
     });
   } else if (config.type === "frm") {
