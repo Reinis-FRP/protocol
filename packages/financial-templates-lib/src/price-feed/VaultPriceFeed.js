@@ -42,6 +42,7 @@ class VaultPriceFeedBase extends PriceFeedInterface {
 
     this.logger = logger;
     this.web3 = web3;
+    this.fromWei = web3.utils.fromWei;
 
     this.vault = new web3.eth.Contract(vaultAbi, vaultAddress);
     this.erc20Abi = erc20Abi;
@@ -50,15 +51,16 @@ class VaultPriceFeedBase extends PriceFeedInterface {
     this.priceFeedDecimals = priceFeedDecimals;
     this.minTimeBetweenUpdates = minTimeBetweenUpdates;
     this.blockFinder = blockFinder || BlockFinder(web3.eth.getBlock);
+    this.tokenDetails = {};
   }
 
   getCurrentPrice() {
     return this.price;
   }
 
-  async getHistoricalPrice(time) {
+  async getHistoricalPrice(time, verbose = false) {
     const block = await this.blockFinder.getBlockForTimestamp(time);
-    return this._getPrice(block.number);
+    return this._getPrice(block, verbose);
   }
 
   getLastUpdateTime() {
@@ -75,22 +77,68 @@ class VaultPriceFeedBase extends PriceFeedInterface {
   }
 
   async update() {
+    if (!this.underlyingTokenAddress) {
+      this.underlyingTokenAddress = await this._tokenTransaction().call();
+    }
     const currentTime = await this.getTime();
     if (this.lastUpdateTime === undefined || currentTime >= this.lastUpdateTime + this.minTimeBetweenUpdates) {
-      this.price = await this._getPrice();
+      this.price = await this._getPrice(await this.web3.eth.getBlock("latest"));
       this.lastUpdateTime = currentTime;
     }
   }
 
-  async _getPrice(blockNumber = "latest") {
-    const rawPrice = await this.vault.methods.getPricePerFullShare().call(undefined, blockNumber);
-    return await this._convertDecimals(rawPrice);
+  async _getPrice(block, verbose = false) {
+    const rawPrice = await this.vault.methods.getPricePerFullShare().call(undefined, block.number);
+    const price = await this._convertDecimals(rawPrice);
+
+    if (verbose) {
+      console.log(await this._printVerbose(block, price));
+    }
+
+    return price;
+  }
+
+  // Prints verbose logs
+
+  async _printVerbose(block, price) {
+    const baseSymbol = (await this._tokenDetails(this.vault.options.address)).symbol;
+    const quoteSymbol = (await this._tokenDetails(this.underlyingTokenAddress)).symbol;
+    const baseDecimals = (await this._tokenDetails(this.vault.options.address)).decimals;
+    const quoteDecimals = (await this._tokenDetails(this.underlyingTokenAddress)).decimals;
+    let output = "";
+    output += `\n(Vault:${quoteSymbol}/${baseSymbol}) Historical pricing @ ${block.timestamp}:`;
+    output += `\n  - ✅ Spot Price: ${this.fromWei(price)}`;
+    output += `\n  - ⚠️  If you want to manually verify the specific spot price, you can query this data on-chain at block #${block.number} from Ethereum archive node`;
+    output += `\n  - call getPricePerFullShare method on the vault contract ${this.vault.options.address}`;
+    output += `\n    - this should get ${this.fromWei(
+      price
+    )} after adjusting for ${baseSymbol} ${baseDecimals} decimals and ${quoteSymbol} ${quoteDecimals} decimals`;
+    return output;
+  }
+
+  // Caches token decimals and symbol.
+  async _tokenDetails(address) {
+    if (!this.tokenDetails[address]) {
+      const token = new this.web3.eth.Contract(this.erc20Abi, address);
+
+      this.tokenDetails[address] = {};
+      try {
+        this.tokenDetails[address].decimals = await token.methods.decimals().call();
+      } catch (err) {
+        this.tokenDetails[address].decimals = 18;
+      }
+      try {
+        this.tokenDetails[address].symbol = await token.methods.symbol().call();
+      } catch (err) {
+        this.tokenDetails[address].symbol = "";
+      }
+    }
+    return this.tokenDetails[address];
   }
 
   async _convertDecimals(value) {
     if (!this.cachedConvertDecimalsFn) {
-      const underlyingTokenAddress = await this._tokenTransaction().call();
-      const underlyingToken = new this.web3.eth.Contract(this.erc20Abi, underlyingTokenAddress);
+      const underlyingToken = new this.web3.eth.Contract(this.erc20Abi, this.underlyingTokenAddress);
 
       let underlyingTokenDecimals;
       try {
