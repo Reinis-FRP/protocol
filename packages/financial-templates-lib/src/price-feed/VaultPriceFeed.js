@@ -43,6 +43,7 @@ class VaultPriceFeedBase extends PriceFeedInterface {
     this.logger = logger;
     this.web3 = web3;
     this.fromWei = web3.utils.fromWei;
+    this.toBN = web3.utils.toBN;
 
     this.vault = new web3.eth.Contract(vaultAbi, vaultAddress);
     this.erc20Abi = erc20Abi;
@@ -88,8 +89,15 @@ class VaultPriceFeedBase extends PriceFeedInterface {
   }
 
   async _getPrice(block, verbose = false) {
-    const rawPrice = await this.vault.methods.getPricePerFullShare().call(undefined, block.number);
-    const price = await this._convertDecimals(rawPrice);
+    let rawPrice;
+    let price;
+    try {
+      rawPrice = await this.vault.methods.getPricePerFullShare().call(undefined, block.number);
+      price = await this._convertDecimals(rawPrice);
+      // Disabled strategy throws error:
+    } catch (err) {
+      price = this.toBN(0);
+    }
 
     if (verbose) {
       console.log(await this._printVerbose(block, price));
