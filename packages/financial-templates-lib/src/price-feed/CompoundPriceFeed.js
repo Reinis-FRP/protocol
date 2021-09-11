@@ -133,7 +133,10 @@ class CompoundPriceFeed extends PriceFeedInterface {
   async _underlyingTokenDetails() {
     if (!this.underlyingTokenDetails) {
       this.underlyingTokenDetails = {};
-      if (this.compound.options.address.toLowerCase() === "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5") {
+      if (
+        this.compound.options.address.toLowerCase() in
+        ["0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5", "0xd06527d5e56a3495252a528c4987003b712860ee"]
+      ) {
         this.underlyingTokenDetails.decimals = 18;
         this.underlyingTokenDetails.symbol = "ETH";
       } else {
