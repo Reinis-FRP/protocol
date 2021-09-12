@@ -92,7 +92,7 @@ class VaultPriceFeedBase extends PriceFeedInterface {
     let rawPrice;
     let price;
     try {
-      rawPrice = await this.vault.methods.getPricePerFullShare().call(undefined, block.number);
+      rawPrice = await this._priceTransaction().call(undefined, block.number);
       price = await this._convertDecimals(rawPrice);
       // Disabled strategy throws error:
     } catch (err) {
@@ -117,7 +117,7 @@ class VaultPriceFeedBase extends PriceFeedInterface {
     output += `\n(Vault:${quoteSymbol}/${baseSymbol}) Historical pricing @ ${block.timestamp}:`;
     output += `\n  - ✅ Spot Price: ${this.fromWei(price)}`;
     output += `\n  - ⚠️  If you want to manually verify the specific spot price, you can query this data on-chain at block #${block.number} from Ethereum archive node`;
-    output += `\n  - call getPricePerFullShare method on the vault contract ${this.vault.options.address}`;
+    output += `\n  - call ${this._priceMethod()} method on the vault contract ${this.vault.options.address}`;
     output += `\n    - this should get ${this.fromWei(
       price
     )} after adjusting for ${baseSymbol} ${baseDecimals} decimals and ${quoteSymbol} ${quoteDecimals} decimals`;
@@ -174,12 +174,42 @@ class VaultPriceFeed extends VaultPriceFeedBase {
   _tokenTransaction() {
     return this.vault.methods.token();
   }
+
+  _priceTransaction() {
+    return this.vault.methods.getPricePerFullShare();
+  }
+
+  _priceMethod() {
+    return "getPricePerFullShare";
+  }
 }
 
 class HarvestVaultPriceFeed extends VaultPriceFeedBase {
   _tokenTransaction() {
     return this.vault.methods.underlying();
   }
+
+  _priceTransaction() {
+    return this.vault.methods.getPricePerFullShare();
+  }
+
+  _priceMethod() {
+    return "getPricePerFullShare";
+  }
 }
 
-module.exports = { VaultPriceFeed, HarvestVaultPriceFeed };
+class PickleJarPriceFeed extends VaultPriceFeedBase {
+  _tokenTransaction() {
+    return this.vault.methods.token();
+  }
+
+  _priceTransaction() {
+    return this.vault.methods.getRatio();
+  }
+
+  _priceMethod() {
+    return "getRatio";
+  }
+}
+
+module.exports = { VaultPriceFeed, HarvestVaultPriceFeed, PickleJarPriceFeed };
