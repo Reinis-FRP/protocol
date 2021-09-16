@@ -1175,6 +1175,487 @@ const defaultConfigs = {
     ],
   },
   "cETH-ETH": { type: "compound", address: "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5" },
+  "YVAULT[LP[yDAI-yUSDC-yUSDT-yTUSD]]-EUR": {
+    type: "expression",
+    expression: "YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\] * LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\-EUR",
+    customFeeds: {
+      "YVAULT[LP[yDAI-yUSDC-yUSDT-yTUSD]]": { type: "vault", address: "0x5dbcf33d8c2e976c6b560249878e6f1491bca25c" },
+    },
+  },
+  "PASTA-EUR": {
+    type: "expression",
+    expression:
+      "PASTA\\-YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\] * YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\]\\-EUR",
+    customFeeds: {
+      "PASTA-YVAULT[LP[yDAI-yUSDC-yUSDT-yTUSD]]": {
+        type: "uniswapSpot",
+        uniswapAddress: "0x2dF3355eD1b532486B0e48A4977afc1CA8E8a566",
+      },
+    },
+  },
+  "[yUSD-OCT20]-EUR": {
+    type: "expression",
+    expression: "\\[yUSD\\-OCT20\\]\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "[yUSD-OCT20]-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0xd2f574637898526fcddfb3d487cc73c957fa0268",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0xb2fdd60ad80ca7ba89b9bab3b5336c2601c020b4",
+      },
+    },
+  },
+  "BPT[[yUSD-OCT20]+USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[yUSD\\-OCT20\\] * \\[yUSD\\-OCT20\\]\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[yUSD-OCT20]": {
+        type: "lpBalancer",
+        poolAddress: "0xd2f574637898526fcddfb3d487cc73c957fa0268",
+        tokenAddress: "0xb2fdd60ad80ca7ba89b9bab3b5336c2601c020b4",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0xd2f574637898526fcddfb3d487cc73c957fa0268",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
+  "crETH-ETH": { type: "compound", address: "0xd06527d5e56a3495252a528c4987003b712860ee" },
+  "UNI-V2[UMA-ETH]-EUR": {
+    type: "expression",
+    expression: "UNI\\-V2\\[UMA\\] * UMA\\-EUR + UNI\\-V2\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "UNI-V2[UMA]": {
+        type: "lpUniswap",
+        poolAddress: "0x88d97d199b9ed37c29d846d00d443de980832a22",
+        tokenAddress: "0x04Fa0d235C4abf4BcF4787aF4CF447DE572eF828",
+      },
+      "UNI-V2[ETH]": {
+        type: "lpUniswap",
+        poolAddress: "0x88d97d199b9ed37c29d846d00d443de980832a22",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "SUSHI-EUR": {
+    type: "fallback",
+    invertPrice: false,
+    minTimeBetweenUpdates: 60,
+    orderedFeeds: [
+      { type: "cryptowatch", exchange: "kraken", pair: "sushieur" },
+      {
+        type: "expression",
+        expression: "SUSHI\\-USDT * USDT\\-EUR",
+        customFeeds: { "SUSHI-USDT": { type: "cryptowatch", exchange: "binance", pair: "sushiusdt" } },
+      },
+      {
+        type: "expression",
+        expression: "SUSHI\\-ETH * ETH\\-EUR",
+        customFeeds: {
+          "SUSHI-ETH": { type: "uniswapSpot", uniswapAddress: "0xCE84867c3c02B05dc570d0135103d3fB9CC19433" },
+        },
+      },
+    ],
+  },
+  "fUSDT-EUR": {
+    type: "expression",
+    expression: "fUSDT\\[USDT\\] * USDT\\-EUR",
+    customFeeds: { "fUSDT[USDT]": { type: "harvestvault", address: "0xc7ee21406bb581e741fbb8b21f213188433d9f2f" } },
+  },
+  "UNI-V2[DAI-ETH]-EUR": {
+    type: "expression",
+    expression: "UNI\\-V2\\[DAI\\] * DAI\\-EUR + UNI\\-V2\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "UNI-V2[DAI]": {
+        type: "lpUniswap",
+        poolAddress: "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
+        tokenAddress: "0x6b175474e89094c44da98b954eedeac495271d0f",
+      },
+      "UNI-V2[ETH]": {
+        type: "lpUniswap",
+        poolAddress: "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "yWETH-EUR": {
+    type: "expression",
+    expression: "yWETH\\[ETH\\] * ETH\\-EUR",
+    customFeeds: { "yWETH[ETH]": { type: "vault", address: "0xe1237aa7f535b0cc33fd973d66cbf830354d16c7" } },
+  },
+  "FARM-EUR": {
+    type: "expression",
+    expression: "FARM\\-USDC * USDC\\-EUR",
+    customFeeds: { "FARM-USDC": { type: "uniswapSpot", uniswapAddress: "0x514906FC121c7878424a5C928cad1852CC545892" } },
+  },
+  "CREAM-EUR": {
+    type: "expression",
+    expression: "CREAM\\-ETH * ETH\\-EUR",
+    customFeeds: { "CREAM-ETH": { type: "uniswapSpot", uniswapAddress: "0xddf9b7a31b32ebaf5c064c80900046c9e5b7c65f" } },
+  },
+  "CRPT[yWETH-WETH]-EUR": {
+    type: "expression",
+    expression: "CRPT\\[yWETH\\] * yWETH\\-EUR + CRPT\\[WETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "CRPT[yWETH]": {
+        type: "lpBalancer",
+        poolAddress: "0x6a3b875854f5518e85ef97620c5e7de75bbc3fa0",
+        tokenAddress: "0xe1237aa7f535b0cc33fd973d66cbf830354d16c7",
+      },
+      "CRPT[WETH]": {
+        type: "lpBalancer",
+        poolAddress: "0x6a3b875854f5518e85ef97620c5e7de75bbc3fa0",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "CRPT[YVAULT[LP[yDAI-yUSDC-yUSDT-yTUSD]]-USDC]-EUR": {
+    type: "expression",
+    expression:
+      "CRPT\\[YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\]\\] * YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\]\\-EUR + CRPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "CRPT[YVAULT[LP[yDAI-yUSDC-yUSDT-yTUSD]]]": {
+        type: "lpBalancer",
+        poolAddress: "0x661b94d96adb18646e791a06576f7905a8d1bef6",
+        tokenAddress: "0x5dbcf33d8c2e976c6b560249878e6f1491bca25c",
+      },
+      "CRPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0x661b94d96adb18646e791a06576f7905a8d1bef6",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
+  "crYYCRV-YVAULT[LP[yDAI-yUSDC-yUSDT-yTUSD]]": {
+    type: "compound",
+    address: "0x4ee15f44c6f0d8d1136c83efd2e8e4ac768954c6",
+  },
+  "crYETH-yWETH": { type: "compound", address: "0x01da76dea59703578040012357b81ffe62015c2d" },
+  "CRPT[crYETH-crYYCRV]-EUR": {
+    type: "expression",
+    expression:
+      "CRPT\\[crYETH\\] * crYETH\\-yWETH * yWETH\\-EUR + CRPT\\[crYYCRV\\] * crYYCRV\\-YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\] * YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\]\\-EUR",
+    customFeeds: {
+      "CRPT[crYETH]": {
+        type: "lpBalancer",
+        poolAddress: "0xb3284f2f22563f27cef2912637b6a00f162317c4",
+        tokenAddress: "0x01da76dea59703578040012357b81ffe62015c2d",
+      },
+      "CRPT[crYYCRV]": {
+        type: "lpBalancer",
+        poolAddress: "0xb3284f2f22563f27cef2912637b6a00f162317c4",
+        tokenAddress: "0x4ee15f44c6f0d8d1136c83efd2e8e4ac768954c6",
+      },
+    },
+  },
+  "BOOST-EUR": {
+    type: "expression",
+    expression: "BOOST\\-ETH * ETH\\-EUR",
+    customFeeds: { "BOOST-ETH": { type: "uniswapSpot", uniswapAddress: "0x6b4a0bd2eee3ca06652f758844937daf91ea8422" } },
+  },
+  "SLP[DAI-ETH]-EUR": {
+    type: "expression",
+    expression: "SLP\\[DAI\\] * DAI\\-EUR + SLP\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "SLP[DAI]": {
+        type: "lpUniswap",
+        poolAddress: "0xc3d03e4f041fd4cd388c549ee2a29a9e5075882f",
+        tokenAddress: "0x6b175474e89094c44da98b954eedeac495271d0f",
+      },
+      "SLP[ETH]": {
+        type: "lpUniswap",
+        poolAddress: "0xc3d03e4f041fd4cd388c549ee2a29a9e5075882f",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "SASHIMI-EUR": {
+    type: "expression",
+    expression: "SASHIMI\\-ETH * ETH\\-EUR",
+    customFeeds: {
+      "SASHIMI-ETH": {
+        type: "uniswapSpot",
+        uniswapAddress: "0x4b618087dae7765823bc47ffbf38c8ee8489f5ca",
+        invertPrice: true,
+      },
+    },
+  },
+  "SLP[UMA-ETH]-EUR": {
+    type: "expression",
+    expression: "SLP\\[UMA\\] * UMA\\-EUR + SLP\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "SLP[UMA]": {
+        type: "lpUniswap",
+        poolAddress: "0x001b6450083e531a5a7bf310bd2c1af4247e23d4",
+        tokenAddress: "0x04Fa0d235C4abf4BcF4787aF4CF447DE572eF828",
+      },
+      "SLP[ETH]": {
+        type: "lpUniswap",
+        poolAddress: "0x001b6450083e531a5a7bf310bd2c1af4247e23d4",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "crYETH-EUR": { type: "expression", expression: "crYETH\\-yWETH * yWETH\\-EUR" },
+  "crYYCRV-EUR": {
+    type: "expression",
+    expression:
+      "crYYCRV\\-YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\] * YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\]\\-EUR",
+  },
+  "UNI-V2[USDT-ETH]-EUR": {
+    type: "expression",
+    expression: "UNI\\-V2\\[USDT\\] * USDT\\-EUR + UNI\\-V2\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "UNI-V2[USDT]": {
+        type: "lpUniswap",
+        poolAddress: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852",
+        tokenAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      },
+      "UNI-V2[ETH]": {
+        type: "lpUniswap",
+        poolAddress: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "SAKE-EUR": {
+    type: "fallback",
+    orderedFeeds: [
+      {
+        type: "expression",
+        expression:
+          "median(SAKE\\-ETH * ETH\\-EUR, SAKE\\-DAI * DAI\\-EUR, SAKE\\-USDC * USDC\\-EUR, SAKE\\-USDT * USDT\\-EUR)",
+        customFeeds: {
+          "SAKE-ETH": { type: "uniswapSpot", uniswapAddress: "0xAC10f17627Cd6bc22719CeEBf1fc524C9Cfdc255" },
+          "SAKE-DAI": { type: "uniswapSpot", uniswapAddress: "0x838ce8f4Da8b49EA72378427485CF827c08a0abf" },
+          "SAKE-USDC": { type: "uniswapSpot", uniswapAddress: "0xEc694c829CC192667cDAA6C7639Ef362f3cbF575" },
+          "SAKE-USDT": { type: "uniswapSpot", uniswapAddress: "0x5B255e213bCcE0FA8Ad2948E3D7A6F6E76472db8" },
+        },
+      },
+      {
+        type: "expression",
+        expression:
+          "median(SAKE\\-ETH * ETH\\-EUR, SAKE\\-DAI * DAI\\-EUR, SAKE\\-USDC * USDC\\-EUR, SAKE\\-USDT * USDT\\-EUR)",
+        customFeeds: {
+          "SAKE-ETH": { type: "uniswapSpot", uniswapAddress: "0xB8172076ceb35B6701F96eB9088818EFc010BD44" },
+          "SAKE-DAI": { type: "uniswapSpot", uniswapAddress: "0x4e1f89DE12c51047Ff4137d1F6aed25fcc9AAE52" },
+          "SAKE-USDC": { type: "uniswapSpot", uniswapAddress: "0x7945d9F0e5c04cd4d1C80Edb5C620f267042533b" },
+          "SAKE-USDT": { type: "uniswapSpot", uniswapAddress: "0x7921Cf04bF55003B065D5a666C62f938bB4FFDf5" },
+        },
+      },
+    ],
+  },
+  "PICKLE-EUR": {
+    type: "expression",
+    expression: "PICKLE\\-ETH * ETH\\-EUR",
+    customFeeds: {
+      "PICKLE-ETH": { type: "uniswapSpot", uniswapAddress: "0xdc98556Ce24f007A5eF6dC1CE96322d65832A819" },
+    },
+  },
+  "CREED-EUR": {
+    type: "expression",
+    expression: "CREED\\-ETH * ETH\\-EUR",
+    customFeeds: { "CREED-ETH": { type: "uniswapSpot", uniswapAddress: "0xac11DbED5E2520216F427c39994334B7C4c10b65" } },
+  },
+  "UNI-V2[USDC-ETH]-EUR": {
+    type: "expression",
+    expression: "UNI\\-V2\\[USDC\\] * USDC\\-EUR + UNI\\-V2\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "UNI-V2[USDC]": {
+        type: "lpUniswap",
+        poolAddress: "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+      "UNI-V2[ETH]": {
+        type: "lpUniswap",
+        poolAddress: "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "UNI-EUR": {
+    type: "expression",
+    expression: "UNI\\-ETH * ETH\\-EUR",
+    customFeeds: { "UNI-ETH": { type: "uniswapSpot", uniswapAddress: "0xd3d2E2692501A5c9Ca623199D38826e513033a17" } },
+  },
+  "LP[DAI-USDC-USDT-sUSD]-EUR": {
+    type: "expression",
+    expression:
+      "LP\\[DAI\\] * DAI\\-EUR + LP\\[USDC\\] * USDC\\-EUR + LP\\[USDT\\] * USDT\\-EUR + LP\\[sUSD\\] * sUSD\\-EUR",
+    customFeeds: {
+      "LP[DAI]": {
+        type: "lpCurve",
+        lpAddress: "0xC25a3A3b969415c80451098fa907EC722572917F",
+        tokenAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      },
+      "LP[USDC]": {
+        type: "lpCurve",
+        lpAddress: "0xC25a3A3b969415c80451098fa907EC722572917F",
+        tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      },
+      "LP[USDT]": {
+        type: "lpCurve",
+        lpAddress: "0xC25a3A3b969415c80451098fa907EC722572917F",
+        tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      },
+      "LP[sUSD]": {
+        type: "lpCurve",
+        lpAddress: "0xC25a3A3b969415c80451098fa907EC722572917F",
+        tokenAddress: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+      },
+      "sUSD-EUR": {
+        type: "expression",
+        expression: "median(sUSD\\-DAI * DAI\\-EUR, sUSD\\-USDC * USDC\\-EUR, sUSD\\-USDT * USDT\\-EUR)",
+        customFeeds: {
+          "sUSD-DAI": {
+            type: "curveSpot",
+            poolAddress: "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD",
+            baseAddress: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+            quoteAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+          },
+          "sUSD-USDC": {
+            type: "curveSpot",
+            poolAddress: "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD",
+            baseAddress: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+            quoteAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          },
+          "sUSD-USDT": {
+            type: "curveSpot",
+            poolAddress: "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD",
+            baseAddress: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+            quoteAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+          },
+        },
+      },
+    },
+  },
+  "pcrvPlain3andSUSD-EUR": {
+    type: "expression",
+    expression: "LP\\[DAI\\-USDC\\-USDT\\-sUSD\\]\\-EUR * pcrv\\[LP\\[DAI\\-USDC\\-USDT\\-sUSD\\]\\]",
+    customFeeds: {
+      "pcrv[LP[DAI-USDC-USDT-sUSD]]": { type: "pickleJar", address: "0x2385d31f1eb3736be0c3629e6f03c4b3cd997ffd" },
+    },
+  },
+  "[uUSDwETH-DEC]-EUR": {
+    type: "expression",
+    expression: "\\[uUSDwETH\\-DEC\\]\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "[uUSDwETH-DEC]-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0xcce41676a4624f4a1e33a787a59d6bf96e5067bc",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0xd16c79c8a39d44b2f3eb45d2019cd6a42b03e2a9",
+      },
+    },
+  },
+  "BPT[[uUSDwETH-DEC]-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[uUSDwETH\\-DEC\\] * \\[uUSDwETH\\-DEC\\]\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[uUSDwETH-DEC]": {
+        type: "lpBalancer",
+        poolAddress: "0xcce41676a4624f4a1e33a787a59d6bf96e5067bc",
+        tokenAddress: "0xd16c79c8a39d44b2f3eb45d2019cd6a42b03e2a9",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0xcce41676a4624f4a1e33a787a59d6bf96e5067bc",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
+  "SakeSwap-LP[UMA-ETH]-EUR": {
+    type: "expression",
+    expression: "SLP\\[UMA\\] * UMA\\-EUR + SLP\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "SLP[UMA]": {
+        type: "lpUniswap",
+        poolAddress: "0x4862100684713296ab30075243e76bfe87b16014",
+        tokenAddress: "0x04Fa0d235C4abf4BcF4787aF4CF447DE572eF828",
+      },
+      "SLP[ETH]": {
+        type: "lpUniswap",
+        poolAddress: "0x4862100684713296ab30075243e76bfe87b16014",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "pcrvPlain3andSUSD_upgrade-EUR": {
+    type: "expression",
+    expression: "LP\\[DAI\\-USDC\\-USDT\\-sUSD\\]\\-EUR * pcrv\\[LP\\[DAI\\-USDC\\-USDT\\-sUSD\\]\\]",
+    customFeeds: {
+      "pcrv[LP[DAI-USDC-USDT-sUSD]]": { type: "pickleJar", address: "0x68d14d66b2b0d6e157c06dc8fefa3d8ba0e66a89" },
+    },
+  },
+  "pDAI-EUR": {
+    type: "expression",
+    expression: "DAI\\-EUR * pDAI\\[DAI\\]",
+    customFeeds: { "pDAI[DAI]": { type: "pickleJar", address: "0x6949bb624e8e8a90f87cd2058139fcd77d2f3f87" } },
+  },
+  "DEGO-EUR": {
+    type: "expression",
+    expression: "DEGO\\-ETH * ETH\\-EUR",
+    customFeeds: { "DEGO-ETH": { type: "uniswapSpot", uniswapAddress: "0x23f7d99c169dee26b215edf806da8fa0706c4ecc" } },
+  },
+  "CRETH2-EUR": {
+    type: "expression",
+    expression: "CRETH2\\-ETH_CRP * ETH\\-EUR",
+    customFeeds: {
+      "CRETH2-ETH_CRP": {
+        type: "balancerSpot",
+        poolAddress: "0xbc338CA728a5D60Df7bc5e3AF5b6dF9DB697d942",
+        quoteAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        baseAddress: "0xcbc1065255cbc3ab41a6868c22d1f1c573ab89fd",
+      },
+    },
+  },
+  "CRETH2-EUR_SUSHI": {
+    type: "expression",
+    expression: "CRETH2\\-ETH * ETH\\-EUR",
+    customFeeds: {
+      "CRETH2-ETH": { type: "uniswapSpot", uniswapAddress: "0x71817445D11f42506F2D7F54417c935be90Ca731" },
+    },
+  },
+  "BPT[BAL_50-ETH_50]-EUR": {
+    type: "expression",
+    expression: "BPT\\[BAL\\] * BAL\\-EUR + BPT\\[ETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "BPT[BAL]": {
+        type: "lpBalancer",
+        poolAddress: "0xe867bE952ee17d2D294F2de62b13B9F4aF521e9a",
+        tokenAddress: "0xba100000625a3754423978a60c9317c58a424e3d",
+      },
+      "BPT[ETH]": {
+        type: "lpBalancer",
+        poolAddress: "0xe867bE952ee17d2D294F2de62b13B9F4aF521e9a",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "CRPT[CRETH2-WETH]-EUR": {
+    type: "expression",
+    expression: "CRPT\\[CRETH2\\] * CRETH2\\-EUR + CRPT\\[WETH\\] * ETH\\-EUR",
+    customFeeds: {
+      "CRPT[CRETH2]": {
+        type: "lpBalancer",
+        poolAddress: "0xbc338ca728a5d60df7bc5e3af5b6df9db697d942",
+        tokenAddress: "0xcbc1065255cbc3ab41a6868c22d1f1c573ab89fd",
+      },
+      "CRPT[WETH]": {
+        type: "lpBalancer",
+        poolAddress: "0xbc338ca728a5d60df7bc5e3af5b6df9db697d942",
+        tokenAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+    },
+  },
+  "CORN-EUR": {
+    type: "expression",
+    expression: "CORN\\-ETH * ETH\\-EUR",
+    customFeeds: { "CORN-ETH": { type: "uniswapSpot", uniswapAddress: "0xba8ed112c5ceed4b3d770d602c2f29b78d8ec201" } },
+  },
+  "crUSDC-USDC": { type: "compound", address: "0x44fbebd2f576670a6c33f6fc0b00aa8c5753b322" },
+  "crCRETH2-CRETH2": { type: "compound", address: "0xfd609a03b393f1a1cfcacedabf068cad09a924e2" },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
