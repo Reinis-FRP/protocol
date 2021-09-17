@@ -184,12 +184,18 @@ class LPBalancerPriceFeed extends PriceFeedInterface {
 
   // Converts decimals from 18 decimals to the configured price feed decimals.
   async _convertToPriceFeedDecimals(value) {
+    if (!value) {
+      return null;
+    }
     const convertOutputDecimals = ConvertDecimals(18, this.priceFeedDecimals, this.web3);
     return convertOutputDecimals(value);
   }
 
   // Converts raw value from the token decimals to 18 decimals usable by fromWei utility.
   async _convertTokenDecimals(value, address) {
+    if (!value) {
+      return null;
+    }
     const convertTokenDecimals = ConvertDecimals(parseInt((await this._tokenDetails(address)).decimals), 18, this.web3);
     return convertTokenDecimals(value);
   }
