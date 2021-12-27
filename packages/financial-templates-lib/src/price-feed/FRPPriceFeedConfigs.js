@@ -1701,6 +1701,8 @@ const defaultConfigs = {
     },
   },
   "ZEC-EUR": { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "zeceur" },
+  "MKR-EUR": { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "mkreur" },
+  "FIL-EUR": { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "fileur" },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
