@@ -1656,6 +1656,51 @@ const defaultConfigs = {
   },
   "crUSDC-USDC": { type: "compound", address: "0x44fbebd2f576670a6c33f6fc0b00aa8c5753b322" },
   "crCRETH2-CRETH2": { type: "compound", address: "0xfd609a03b393f1a1cfcacedabf068cad09a924e2" },
+  "BPT[[YD-ETH-MAR21]-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[YD\\-ETH\\-MAR21\\] * \\[YD\\-ETH\\-MAR21\\]\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[YD-ETH-MAR21]": {
+        type: "lpBalancer",
+        poolAddress: "0x5e065d534d1daaf9e6222afa1d09e7dac6cbd0f7",
+        tokenAddress: "0x90f802c7e8fb5d40b0de583e34c065a3bd2020d8",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0x5e065d534d1daaf9e6222afa1d09e7dac6cbd0f7",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
+  "Zelda_WSC-EUR": {
+    type: "expression",
+    expression: "Zelda_WSC\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "Zelda_WSC-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0x70f01aefdce76df83f992fa416bdb9d7a21098ac",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0xb3f83a3be59e71876659c5cecc6a3c4d690d258e",
+      },
+    },
+  },
+  "BPT[Zelda_WSC-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[Zelda_WSC\\] * Zelda_WSC\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[Zelda_WSC]": {
+        type: "lpBalancer",
+        poolAddress: "0x70f01aefdce76df83f992fa416bdb9d7a21098ac",
+        tokenAddress: "0xb3f83a3be59e71876659c5cecc6a3c4d690d258e",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0x70f01aefdce76df83f992fa416bdb9d7a21098ac",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
+  "ZEC-EUR": { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "zeceur" },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
