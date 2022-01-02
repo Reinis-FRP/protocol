@@ -1701,8 +1701,25 @@ const defaultConfigs = {
     },
   },
   "ZEC-EUR": { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "zeceur" },
-  "MKR-EUR": { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "mkreur" },
   "FIL-EUR": { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "fileur" },
+  "MKR-EUR": {
+    type: "fallback",
+    orderedFeeds: [
+      { type: "cryptowatch", invertPrice: false, minTimeBetweenUpdates: 60, exchange: "kraken", pair: "mkreur" },
+      {
+        type: "expression",
+        expression: "MKR\\-ETH * ETH\\-EUR",
+        customFeeds: {
+          "MKR-ETH": { type: "uniswapSpot", uniswapAddress: "0xBa13afEcda9beB75De5c56BbAF696b880a5A50dD" },
+        },
+      },
+    ],
+  },
+  "DANDY-EUR": {
+    type: "expression",
+    expression: "DANDY\\-ETH * ETH\\-EUR",
+    customFeeds: { "DANDY-ETH": { type: "uniswapSpot", uniswapAddress: "0x205a823aad2335484c7c072ef7a83b0ffff0866c" } },
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
