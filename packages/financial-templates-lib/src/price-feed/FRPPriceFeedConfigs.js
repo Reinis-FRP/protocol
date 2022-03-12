@@ -1720,6 +1720,11 @@ const defaultConfigs = {
     expression: "DANDY\\-ETH * ETH\\-EUR",
     customFeeds: { "DANDY-ETH": { type: "uniswapSpot", uniswapAddress: "0x205a823aad2335484c7c072ef7a83b0ffff0866c" } },
   },
+  "WTF-EUR": {
+    type: "expression",
+    expression: "WTF\\-ETH * ETH\\-EUR",
+    customFeeds: { "WTF-ETH": { type: "uniswapSpot", uniswapAddress: "0xab293dce330b92aa52bc2a7cd3816edaa75f890b" } },
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
