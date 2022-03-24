@@ -1725,6 +1725,62 @@ const defaultConfigs = {
     expression: "WTF\\-ETH * ETH\\-EUR",
     customFeeds: { "WTF-ETH": { type: "uniswapSpot", uniswapAddress: "0xab293dce330b92aa52bc2a7cd3816edaa75f890b" } },
   },
+  "Zelda_SNC-EUR": {
+    type: "expression",
+    expression: "Zelda_SNC\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "Zelda_SNC-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0x66adc23726809d5a16d71184265bc4e286ece3b8",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0x654EEBaC62240E6C56bAB5f6AdF7cfA74A894510",
+      },
+    },
+  },
+  "BPT[Zelda_SNC-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[Zelda_SNC\\] * Zelda_SNC\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[Zelda_SNC]": {
+        type: "lpBalancer",
+        poolAddress: "0x66adc23726809d5a16d71184265bc4e286ece3b8",
+        tokenAddress: "0x654EEBaC62240E6C56bAB5f6AdF7cfA74A894510",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0x66adc23726809d5a16d71184265bc4e286ece3b8",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
+  "Zelda_WWC-EUR": {
+    type: "expression",
+    expression: "Zelda_WWC\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "Zelda_WWC-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0xb1da44d07b8fe6e0169f0591e8cd9a384e914bca",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0x249a198d59b57fda5dda90630febc86fd8c7594c",
+      },
+    },
+  },
+  "BPT[Zelda_WWC-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[Zelda_WWC\\] * Zelda_WWC\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[Zelda_WWC]": {
+        type: "lpBalancer",
+        poolAddress: "0xb1da44d07b8fe6e0169f0591e8cd9a384e914bca",
+        tokenAddress: "0x249a198d59b57fda5dda90630febc86fd8c7594c",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0xb1da44d07b8fe6e0169f0591e8cd9a384e914bca",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
