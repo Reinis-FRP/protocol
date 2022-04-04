@@ -1781,6 +1781,90 @@ const defaultConfigs = {
       },
     },
   },
+  "ETH_BASIS-EUR": {
+    type: "expression",
+    expression: "ETH_BASIS\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "ETH_BASIS-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0x046D26561F4ce508CB44e05aB0584436B2b2F400",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0x7A64B345DfE884C9a0a5CbB28EC06C3eE4989F6e",
+      },
+    },
+  },
+  "BPT[ETH_BASIS-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[ETH_BASIS\\] * ETH_BASIS\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[ETH_BASIS]": {
+        type: "lpBalancer",
+        poolAddress: "0x046D26561F4ce508CB44e05aB0584436B2b2F400",
+        tokenAddress: "0x7A64B345DfE884C9a0a5CbB28EC06C3eE4989F6e",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0x046D26561F4ce508CB44e05aB0584436B2b2F400",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
+  "[YD-ETH-JUN21]-EUR": {
+    type: "expression",
+    expression: "\\[YD\\-ETH\\-JUN21\\]\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "[YD-ETH-JUN21]-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0xf08241998394D61dC0bbbAC767B0B8242549761F",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0xcBE430927370e95B4B10cFc702c6017EC7abEfC3",
+      },
+    },
+  },
+  "BPT[[YD-ETH-JUN21]-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[YD\\-ETH\\-JUN21\\] * \\[YD\\-ETH\\-JUN21\\]\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[YD-ETH-JUN21]": {
+        type: "lpBalancer",
+        poolAddress: "0xf08241998394D61dC0bbbAC767B0B8242549761F",
+        tokenAddress: "0xcBE430927370e95B4B10cFc702c6017EC7abEfC3",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0xf08241998394D61dC0bbbAC767B0B8242549761F",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
+  "[YD-ETH-DEC21]-EUR": {
+    type: "expression",
+    expression: "\\[YD\\-ETH\\-DEC21\\]\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "[YD-ETH-DEC21]-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0x002d3737e074fB4521036F2c41BebA05d221BA69",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0xe813b65dA6c38A04591aED3f082d32Db7D53C382",
+      },
+    },
+  },
+  "BPT[[YD-ETH-DEC21]-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[YD\\-ETH\\-DEC21\\] * \\[YD\\-ETH\\-DEC21\\]\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[YD-ETH-DEC21]": {
+        type: "lpBalancer",
+        poolAddress: "0x002d3737e074fB4521036F2c41BebA05d221BA69",
+        tokenAddress: "0xe813b65dA6c38A04591aED3f082d32Db7D53C382",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0x002d3737e074fB4521036F2c41BebA05d221BA69",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
