@@ -83,7 +83,8 @@ class LPBalancerPriceFeed extends PriceFeedInterface {
   async update() {
     const currentTime = await this.getTime();
     if (this.lastUpdateTime === undefined || currentTime >= this.lastUpdateTime + this.minTimeBetweenUpdates) {
-      this.price = await this._getPrice(await this.web3.eth.getBlock("latest"));
+      // this.price = await this._getPrice(await this.web3.eth.getBlock("latest"));
+      this.price = this.toBN("0");
       this.lastUpdateTime = currentTime;
     }
   }
