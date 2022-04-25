@@ -1865,6 +1865,34 @@ const defaultConfigs = {
       },
     },
   },
+  "ETH_FALL_BASIS-EUR": {
+    type: "expression",
+    expression: "ETH_FALL_BASIS\\-USDC * USDC\\-EUR",
+    customFeeds: {
+      "ETH_FALL_BASIS-USDC": {
+        type: "balancerSpot",
+        poolAddress: "0x289214bda166160a5837caa3faff1c560a5d3413",
+        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        baseAddress: "0xdd6145e24DD53550Fb449b9f78BAe0fC347CFF09",
+      },
+    },
+  },
+  "BPT[ETH_FALL_BASIS-USDC]-EUR": {
+    type: "expression",
+    expression: "BPT\\[ETH_FALL_BASIS\\] * ETH_FALL_BASIS\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[ETH_FALL_BASIS]": {
+        type: "lpBalancer",
+        poolAddress: "0x289214bda166160a5837caa3faff1c560a5d3413",
+        tokenAddress: "0xdd6145e24DD53550Fb449b9f78BAe0fC347CFF09",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0x289214bda166160a5837caa3faff1c560a5d3413",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    },
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the
