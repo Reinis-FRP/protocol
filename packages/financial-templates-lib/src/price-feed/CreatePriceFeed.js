@@ -33,7 +33,7 @@ const { QuandlPriceFeed } = require("./QuandlPriceFeed");
 const { TraderMadePriceFeed } = require("./TraderMadePriceFeed");
 const { UniswapSpotPriceFeed } = require("./UniswapSpotPriceFeed");
 const { UniswapV2PriceFeed, UniswapV3PriceFeed } = require("./UniswapPriceFeed");
-const { VaultPriceFeed, HarvestVaultPriceFeed, PickleJarPriceFeed } = require("./VaultPriceFeed");
+const { VaultPriceFeed, YVaultPriceFeed, HarvestVaultPriceFeed, PickleJarPriceFeed } = require("./VaultPriceFeed");
 
 // Global cache for block (promises) used by uniswap price feeds.
 const uniswapBlockCache = {};
@@ -46,6 +46,7 @@ async function createPriceFeed(logger, web3, networker, getTime, config, identif
   const Balancer = getTruffleContract("Balancer", web3);
   const BalancerSpot = getTruffleContract("BalancerSpot", web3);
   const VaultInterface = getTruffleContract("VaultInterface", web3);
+  const YVaultInterface = getTruffleContract("YVaultInterface", web3);
   const HarvestVaultInterface = getTruffleContract("HarvestVaultInterface", web3);
   const PickleJarInterface = getTruffleContract("PickleJarInterface", web3);
   const Perpetual = getTruffleContract("Perpetual", web3);
@@ -420,6 +421,24 @@ async function createPriceFeed(logger, web3, networker, getTime, config, identif
       web3,
       getTime,
       vaultAbi: VaultInterface.abi,
+      erc20Abi: ERC20.abi,
+      vaultAddress: config.address,
+      blockFinder: getSharedBlockFinder(web3),
+    });
+  } else if (config.type === "yvault") {
+    const requiredFields = ["address"];
+    if (isMissingField(config, requiredFields, logger)) {
+      return null;
+    }
+
+    logger.debug({ at: "createPriceFeed", message: "Creating YVaultPriceFeed", config });
+
+    return new YVaultPriceFeed({
+      ...config,
+      logger,
+      web3,
+      getTime,
+      vaultAbi: YVaultInterface.abi,
       erc20Abi: ERC20.abi,
       vaultAddress: config.address,
       blockFinder: getSharedBlockFinder(web3),

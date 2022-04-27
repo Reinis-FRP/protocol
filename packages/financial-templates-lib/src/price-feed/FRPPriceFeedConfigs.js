@@ -1893,6 +1893,13 @@ const defaultConfigs = {
       },
     },
   },
+  "YVAULT[YPOOL]-EUR": {
+    type: "expression",
+    expression: "YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\] * LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\-EUR",
+    customFeeds: {
+      "YVAULT[LP[yDAI-yUSDC-yUSDT-yTUSD]]": { type: "yvault", address: "0x4b5bfd52124784745c1071dcb244c6688d2533d3" },
+    },
+  },
 };
 
 // Pull in the number of decimals for each identifier from the common getPrecisionForIdentifier. This is used within the

@@ -184,6 +184,20 @@ class VaultPriceFeed extends VaultPriceFeedBase {
   }
 }
 
+class YVaultPriceFeed extends VaultPriceFeedBase {
+  _tokenTransaction() {
+    return this.vault.methods.token();
+  }
+
+  _priceTransaction() {
+    return this.vault.methods.pricePerShare();
+  }
+
+  _priceMethod() {
+    return "pricePerShare";
+  }
+}
+
 class HarvestVaultPriceFeed extends VaultPriceFeedBase {
   _tokenTransaction() {
     return this.vault.methods.underlying();
@@ -212,4 +226,4 @@ class PickleJarPriceFeed extends VaultPriceFeedBase {
   }
 }
 
-module.exports = { VaultPriceFeed, HarvestVaultPriceFeed, PickleJarPriceFeed };
+module.exports = { VaultPriceFeed, YVaultPriceFeed, HarvestVaultPriceFeed, PickleJarPriceFeed };
