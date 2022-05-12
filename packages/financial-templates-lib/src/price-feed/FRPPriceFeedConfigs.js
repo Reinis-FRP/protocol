@@ -1866,16 +1866,33 @@ const defaultConfigs = {
     },
   },
   "ETH_FALL_BASIS-EUR": {
-    type: "expression",
-    expression: "ETH_FALL_BASIS\\-USDC * USDC\\-EUR",
-    customFeeds: {
-      "ETH_FALL_BASIS-USDC": {
-        type: "balancerSpot",
-        poolAddress: "0x289214bda166160a5837caa3faff1c560a5d3413",
-        quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-        baseAddress: "0xdd6145e24DD53550Fb449b9f78BAe0fC347CFF09",
+    type: "fallback",
+    orderedFeeds: [
+      {
+        type: "expression",
+        expression: "ETH_FALL_BASIS\\-USDC * USDC\\-EUR",
+        customFeeds: {
+          "ETH_FALL_BASIS-USDC": {
+            type: "balancerSpot",
+            poolAddress: "0x289214bda166160a5837caa3faff1c560a5d3413",
+            quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            baseAddress: "0xdd6145e24DD53550Fb449b9f78BAe0fC347CFF09",
+          },
+        },
       },
-    },
+      {
+        type: "expression",
+        expression: "ETH_FALL_BASIS\\-USDC * USDC\\-EUR",
+        customFeeds: {
+          "ETH_FALL_BASIS-USDC": {
+            type: "balancerSpot",
+            poolAddress: "0xfc2906f44c8eca088fde6b479d60bdbcd7176772",
+            quoteAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            baseAddress: "0xdd6145e24DD53550Fb449b9f78BAe0fC347CFF09",
+          },
+        },
+      },
+    ],
   },
   "BPT[ETH_FALL_BASIS-USDC]-EUR": {
     type: "expression",
@@ -1898,6 +1915,22 @@ const defaultConfigs = {
     expression: "YVAULT\\[LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\] * LP\\[yDAI\\-yUSDC\\-yUSDT\\-yTUSD\\]\\-EUR",
     customFeeds: {
       "YVAULT[LP[yDAI-yUSDC-yUSDT-yTUSD]]": { type: "yvault", address: "0x4b5bfd52124784745c1071dcb244c6688d2533d3" },
+    },
+  },
+  "BPT[ETH_FALL_BASIS-USDC-70-30]-EUR": {
+    type: "expression",
+    expression: "BPT\\[ETH_FALL_BASIS\\] * ETH_FALL_BASIS\\-EUR + BPT\\[USDC\\] * USDC\\-EUR",
+    customFeeds: {
+      "BPT[ETH_FALL_BASIS]": {
+        type: "lpBalancer",
+        poolAddress: "0xfc2906f44c8eca088fde6b479d60bdbcd7176772",
+        tokenAddress: "0xdd6145e24DD53550Fb449b9f78BAe0fC347CFF09",
+      },
+      "BPT[USDC]": {
+        type: "lpBalancer",
+        poolAddress: "0xfc2906f44c8eca088fde6b479d60bdbcd7176772",
+        tokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
     },
   },
 };
